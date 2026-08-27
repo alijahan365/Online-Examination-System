@@ -4,7 +4,7 @@
 
 <head>
   <meta charset="utf-8">
- 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style media="screen">
     a:link {
@@ -66,6 +66,7 @@
       height: 100%;
       transition: 0.5s;
       transition-property: left;
+      z-index: 100;
     }
 
     .sidebar .profile_image {
@@ -148,10 +149,40 @@
     #check {
       display: none;
     }
+
+    @media screen and (max-width: 768px) {
+      .sidebar {
+        left: -250px;
+        z-index: 10000;
+      }
+      #check:checked~.sidebar {
+        left: 0;
+      }
+      #check:checked~.sidebar a span {
+        display: inline;
+      }
+      #check:checked~.sidebar a {
+        font-size: 15px;
+        margin-left: 0;
+        width: 100%;
+      }
+      .content {
+        margin-left: 0 !important;
+        padding: 10px;
+      }
+      .logout_btn {
+        margin-right: 10px;
+        font-size: 13px;
+        padding: 3px 8px;
+      }
+      label #sidebar_btn {
+        left: 180px !important;
+      }
+    }
   </style>
 
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+
 
 
 </head>
