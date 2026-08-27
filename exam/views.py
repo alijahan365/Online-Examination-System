@@ -97,11 +97,14 @@ def update_teacher_view(request,pk):
 
 
 @login_required(login_url='adminlogin')
+@login_required(login_url='adminlogin')
 def delete_teacher_view(request,pk):
-    teacher=TMODEL.Teacher.objects.get(id=pk)
-    user=User.objects.get(id=teacher.user_id)
-    user.delete()
-    teacher.delete()
+    try:
+        teacher=TMODEL.Teacher.objects.get(id=pk)
+        user=User.objects.get(id=teacher.user_id)
+        user.delete()
+    except Exception:
+        pass
     return HttpResponseRedirect('/admin-view-teacher')
 
 
@@ -130,10 +133,12 @@ def approve_teacher_view(request,pk):
 
 @login_required(login_url='adminlogin')
 def reject_teacher_view(request,pk):
-    teacher=TMODEL.Teacher.objects.get(id=pk)
-    user=User.objects.get(id=teacher.user_id)
-    user.delete()
-    teacher.delete()
+    try:
+        teacher=TMODEL.Teacher.objects.get(id=pk)
+        user=User.objects.get(id=teacher.user_id)
+        user.delete()
+    except Exception:
+        pass
     return HttpResponseRedirect('/admin-view-pending-teacher')
 
 @login_required(login_url='adminlogin')
@@ -180,11 +185,14 @@ def update_student_view(request,pk):
 
 @login_required(login_url='adminlogin')
 def delete_student_view(request,pk):
-    student=SMODEL.Student.objects.get(id=pk)
-    user=User.objects.get(id=student.user_id)
-    user.delete()
-    student.delete()
+    try:
+        student=SMODEL.Student.objects.get(id=pk)
+        user=User.objects.get(id=student.user_id)
+        user.delete()
+    except Exception:
+        pass
     return HttpResponseRedirect('/admin-view-student')
+
 
 
 @login_required(login_url='adminlogin')
