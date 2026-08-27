@@ -299,3 +299,10 @@ def contactus_view(request):
     return render(request, 'exam/contactus.html', {'form':sub})
 
 
+@login_required(login_url='adminlogin')
+def admin_proctoring_logs_view(request):
+    logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
+    return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': 'exam/adminbase.html'})
+
+
+

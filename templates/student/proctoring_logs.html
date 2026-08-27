@@ -3,15 +3,13 @@
 {% load static %}
 
 <head>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
   <style>
     .card-box {
       background: #ffffff;
       border-radius: 12px;
       padding: 24px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      margin-top: 20px;
+      margin-top: 10px;
     }
     .badge-reason {
       font-size: 13px;
@@ -32,13 +30,16 @@
       transform: scale(1.1);
       border-color: #e53e3e;
     }
+    .table-responsive {
+      overflow-x: auto;
+    }
   </style>
 </head>
 
-<div class="container my-4">
+<div class="container-fluid px-3 my-2">
   <div class="card-box">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>🛡️ Anti-Cheating & Proctoring Logs</h2>
+      <h2 style="font-size: 22px;">🛡️ Anti-Cheating & Proctoring Logs</h2>
       <span class="badge badge-info p-2" style="font-size: 14px;">Total Logs: {{ logs|length }}</span>
     </div>
 
@@ -71,28 +72,7 @@
             <td><small class="text-muted"><i class="far fa-clock"></i> {{ log.timestamp|date:"d M Y, h:i A" }}</small></td>
             <td>
               {% if log.snapshot %}
-                <img src="/static/{{ log.snapshot }}" class="snapshot-img" data-toggle="modal" data-target="#imgModal{{ log.id }}" alt="Snapshot">
-                
-                <!-- Modal -->
-                <div class="modal fade" id="imgModal{{ log.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title"><i class="fas fa-user-shield"></i> Evidence Snapshot - {{ log.student.get_name }}</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body text-center bg-dark">
-                        <img src="/static/{{ log.snapshot }}" class="img-fluid rounded" style="max-height: 500px;" alt="Evidence Snapshot">
-                        <div class="alert alert-warning mt-3 mb-0 text-left">
-                          <strong>Reason:</strong> {{ log.reason }}<br>
-                          <strong>Time:</strong> {{ log.timestamp|date:"d M Y, h:i:s A" }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <img src="/static/{{ log.snapshot }}" class="snapshot-img" onclick="alert('Student: {{ log.student.get_name }}\nReason: {{ log.reason }}\nTime: {{ log.timestamp }}'); window.open('/static/{{ log.snapshot }}', '_blank');" alt="Snapshot">
               {% else %}
                 <span class="text-muted">No Image</span>
               {% endif %}
@@ -111,6 +91,4 @@
   </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 {% endblock content %}
