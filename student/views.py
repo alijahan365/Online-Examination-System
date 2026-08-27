@@ -129,4 +129,57 @@ def check_marks_view(request,pk):
 def student_marks_view(request):
     courses=QMODEL.Course.objects.all()
     return render(request,'student/student_marks.html',{'courses':courses})
+
+
+import base64
+import time
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@login_required(login_url='studentlogin')
+@user_passes_test(is_student)
+@csrf_exempt
+def log_cheating_event_view(request):
+    if request.method == 'POST':
+        course_id = request.POST.get('course_id') or request.COOKIES.get('course_id')
+        reason = request.POST.get('reason', 'Suspicious Activity Detected')
+        image_data = request.POST.get('image_data')
+
+        student = models.Student.objects.get(user_id=request.user.id)
+        course_name = "Online Exam"
+        if course_id:
+            try:
+                course = QMODEL.Course.objects.get(id=course_id)
+                course_name = course.course_name
+            except QMODEL.Course.DoesNotExist:
+                pass
+        
+        cheating_log = models.CheatingLog(
+            student=student,
+            course_name=course_name,
+            reason=reason
+        )
+
+        if image_data and ';base64,' in image_data:
+            try:
+                format, imgstr = image_data.split(';base64,')
+                ext = format.split('/')[-1]
+                if ext == 'jpeg':
+                    ext = 'jpg'
+                file_name = f"cheating_{student.id}_{int(time.time())}.{ext}"
+                cheating_log.snapshot.save(file_name, ContentFile(base64.b64decode(imgstr)), save=False)
+            except Exception as e:
+                pass
+
+        cheating_log.save()
+        return JsonResponse({'status': 'success', 'message': 'Violation logged'})
+    return JsonResponse({'status': 'failed'}, status=400)
+
+
+@login_required
+def proctoring_logs_view(request):
+    logs = models.CheatingLog.objects.all().order_by('-timestamp')
+    return render(request, 'student/proctoring_logs.html', {'logs': logs})
+
   

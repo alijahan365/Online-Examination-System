@@ -15,3 +15,13 @@ class Student(models.Model):
         return self
     def __str__(self):
         return self.user.first_name
+
+class CheatingLog(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course_name = models.CharField(max_length=100)
+    reason = models.CharField(max_length=255)
+    snapshot = models.ImageField(upload_to='cheating_snapshots/', null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.get_name} - {self.course_name} ({self.reason})"

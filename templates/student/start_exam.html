@@ -1,85 +1,260 @@
 {% extends 'student/studentbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
 <head>
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+  <style>
+    /* Floating Proctoring Video Widget */
+    .proctor-widget {
+      position: fixed;
+      top: 80px;
+      right: 25px;
+      width: 220px;
+      background: #1a202c;
+      border: 3px solid #3182ce;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      z-index: 99999;
+      color: #ffffff;
+      text-align: center;
+    }
 
+    .proctor-video {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .proctor-status {
+      font-size: 11px;
+      font-weight: bold;
+      color: #48bb78;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #48bb78;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(72, 187, 120, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+    }
+
+    /* Camera Lock Overlay */
+    #cameraLockOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .warning-banner {
+      background-color: #fff5f5;
+      border-left: 5px solid #e53e3e;
+      color: #c53030;
+      padding: 12px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
+<!-- Camera Lock Overlay -->
+<div id="cameraLockOverlay">
+  <i class="fas fa-video-slash" style="font-size: 64px; color: #f56565; margin-bottom: 20px;"></i>
+  <h2>📷 Webcam Permission Required</h2>
+  <p style="max-width: 500px; font-size: 16px; color: #cbd5e0; margin-bottom: 25px;">
+    To ensure exam integrity, AI Anti-Cheating Proctoring requires access to your camera. Please enable your camera to start the exam.
+  </p>
+  <button onclick="initCamera()" class="btn btn-primary btn-lg" style="padding: 12px 30px; border-radius: 30px; font-weight: bold;">
+    <i class="fas fa-camera"></i> Enable Camera & Start Exam
+  </button>
+</div>
+
+<!-- Floating Proctoring Widget -->
+<div class="proctor-widget" id="proctorWidget" style="display: none;">
+  <video id="webcamVideo" class="proctor-video" autoplay playsinline muted></video>
+  <div class="proctor-status">
+    <span class="pulse-dot"></span> AI Proctoring Active
+  </div>
+</div>
+
+<canvas id="snapshotCanvas" style="display: none;" width="640" height="480"></canvas>
 
 <div class="jumbotron my-4">
+  <div class="warning-banner">
+    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT PROCTORING RULES:</strong> Do NOT switch browser tabs or minimize window! Doing so will immediately capture a snapshot evidence and AUTO-SUBMIT your exam.
+  </div>
 
-  <form class="form" autocomplete="off" onsubmit="return saveAns()"  action="/student/calculate-marks" method="POST">
+  <form id="examForm" class="form" autocomplete="off" onsubmit="return saveAns()" action="/student/calculate-marks" method="POST">
     {% csrf_token %}
     <h2 style="text-align: center;">Course: {{course.course_name}}</h2>
     {% for q in questions%}
     <h3 class="text-danger">{{ forloop.counter }}. {{q.question}}</h3><h4 style="text-align: right;">[{{q.marks}} Marks]</h4>
     
-        <input type="hidden" name="csrfmiddlewaretoken" value="C24rUotmdHawVQJL3KrqiWxvti8UffOFYUc8TRbZtLt36AVLdP3jbkzUVe3beRAa">
-        
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option1}}" value="Option1">
-            <label class="form-check-label" for="option1">
-              {{q.option1}}
-            </label>
-          </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt1" value="Option1">
+        <label class="form-check-label" for="q{{ forloop.counter }}_opt1">
+          {{q.option1}}
+        </label>
+      </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option2}}" value="Option2">
-            <label class="form-check-label" for="option2">
-              {{q.option2}}
-            </label>
-          </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt2" value="Option2">
+        <label class="form-check-label" for="q{{ forloop.counter }}_opt2">
+          {{q.option2}}
+        </label>
+      </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option3}}" value="Option3">
-            <label class="form-check-label" for="option3">
-              {{q.option3}}
-            </label>
-          </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt3" value="Option3">
+        <label class="form-check-label" for="q{{ forloop.counter }}_opt3">
+          {{q.option3}}
+        </label>
+      </div>
 
-        
-          <div class="form-check mx-4">
-            <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="{{q.option4}}" value="Option4">
-            <label class="form-check-label" for="option4">
-              {{q.option4}}
-            </label>
-          </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt4" value="Option4">
+        <label class="form-check-label" for="q{{ forloop.counter }}_opt4">
+          {{q.option4}}
+        </label>
+      </div>
 
-        {% endfor %}
-        <input class="btn btn-success btn-lg" style="border-radius: 0%;"  type="submit" value="Submit Answers">  
-    </form>
-  </div>
+    {% endfor %}
+    <br>
+    <input class="btn btn-success btn-lg" style="border-radius: 0%;" type="submit" value="Submit Answers">  
+  </form>
+</div>
 
-<script> 
-    function saveAns(){  
+<script>
+  let videoStream = null;
+  let isAutoSubmitting = false;
+  const courseId = "{{ course.id }}";
 
-        var ele = document.getElementsByTagName('input'); 
-        for(i = 0; i < ele.length; i++) { 
-            if(ele[i].type="radio") { 
-                if(ele[i].checked){        
-                  setCookie(ele[i].name,ele[i].value,3)
-                }
-            } 
-        } 
-          
+  // Initialize Camera
+  async function initCamera() {
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 640, height: 480, facingMode: "user" } 
+      });
+      const videoElem = document.getElementById('webcamVideo');
+      videoElem.srcObject = videoStream;
+      
+      document.getElementById('cameraLockOverlay').style.display = 'none';
+      document.getElementById('proctorWidget').style.display = 'block';
+    } catch (err) {
+      alert('Camera access is required to take this exam. Please grant camera permission.');
+      console.error('Camera Access Error:', err);
     }
-    
-    function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays*24*60*60*1000));
-  var expires = "expires="+ d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
+  }
 
-</script> 
+  // Capture Snapshot from Video
+  function captureSnapshot() {
+    const videoElem = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('snapshotCanvas');
+    const context = canvas.getContext('2d');
+
+    if (videoElem && videoElem.readyState === videoElem.HAVE_ENOUGH_DATA) {
+      context.drawImage(videoElem, 0, 0, canvas.width, canvas.height);
+      return canvas.toDataURL('image/jpeg', 0.8);
+    }
+    return null;
+  }
+
+  // Log Cheating Event to Backend
+  function logCheatingEvent(reason, isCritical = false) {
+    const imageData = captureSnapshot();
+    const formData = new FormData();
+    formData.append('course_id', courseId);
+    formData.append('reason', reason);
+    if (imageData) {
+      formData.append('image_data', imageData);
+    }
+
+    // Send AJAX request
+    fetch('/student/log-cheating-event', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    }).catch(err => console.error('Log Event Error:', err));
+
+    if (isCritical && !isAutoSubmitting) {
+      isAutoSubmitting = true;
+      alert('⚠️ VIOLATION DETECTED: You left the exam tab/window!\n\nYour exam is being AUTO-SUBMITTED now with your current answers.');
+      saveAns();
+      document.getElementById('examForm').submit();
+    }
+  }
+
+  // Detect Tab Switching & Window Blur
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && !isAutoSubmitting) {
+      logCheatingEvent('Tab Switch Detected', true);
+    }
+  });
+
+  window.addEventListener('blur', function () {
+    if (!isAutoSubmitting) {
+      logCheatingEvent('Window Blur / Focus Lost', true);
+    }
+  });
+
+  // Save Answers to Cookies
+  function saveAns() {  
+    var ele = document.getElementsByTagName('input'); 
+    for(i = 0; i < ele.length; i++) { 
+      if(ele[i].type === "radio") { 
+        if(ele[i].checked){        
+          setCookie(ele[i].name, ele[i].value, 3);
+        }
+      } 
+    } 
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  // Auto-prompt camera on load
+  window.onload = function() {
+    initCamera();
+  };
+</script>
 
 <br><br><br><br><br><br>
 {% endblock content %}
