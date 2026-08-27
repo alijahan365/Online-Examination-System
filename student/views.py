@@ -180,6 +180,16 @@ def log_cheating_event_view(request):
 @login_required
 def proctoring_logs_view(request):
     logs = models.CheatingLog.objects.all().order_by('-timestamp')
-    return render(request, 'student/proctoring_logs.html', {'logs': logs})
+    
+    base_template = 'exam/adminbase.html'
+    if hasattr(request.user, 'student'):
+        base_template = 'student/studentbase.html'
+    elif hasattr(request.user, 'teacher'):
+        base_template = 'teacher/teacherbase.html'
+    elif request.user.is_superuser or request.user.is_staff:
+        base_template = 'exam/adminbase.html'
+
+    return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': base_template})
+
 
   
