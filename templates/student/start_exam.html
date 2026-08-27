@@ -11,6 +11,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
   <style>
+    body {
+      background-color: #f4f6f9;
+    }
+
     /* Floating Proctoring Video Widget */
     .proctor-widget {
       position: fixed;
@@ -94,14 +98,116 @@
       padding: 20px;
     }
 
+    .exam-container {
+      max-width: 850px;
+      margin: 10px auto;
+      padding: 0 15px;
+    }
+
+    .exam-header-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      border-top: 4px solid #3182ce;
+    }
+
     .warning-banner {
       background-color: #fff5f5;
       border-left: 5px solid #e53e3e;
       color: #c53030;
-      padding: 12px 20px;
-      border-radius: 6px;
-      margin-bottom: 20px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(229,62,62,0.1);
+    }
+
+    /* Question Cards UI */
+    .question-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      border-left: 5px solid #3182ce;
+      transition: transform 0.2s ease;
+    }
+
+    .question-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2d3748;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .marks-badge {
+      background: #edf2f7;
+      color: #4a5568;
+      font-size: 13px;
       font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
+      float: right;
+    }
+
+    /* Modern Option Boxes */
+    .option-box {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .option-box:hover {
+      background: #ebf8ff;
+      border-color: #3182ce;
+      transform: translateY(-1px);
+    }
+
+    .option-box input[type="radio"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .option-text {
+      font-size: 15px;
+      color: #2d3748;
+      font-weight: 500;
+    }
+
+    .btn-submit-exam {
+      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 30px;
+      box-shadow: 0 4px 15px rgba(56,161,105,0.3);
+      display: block;
+      margin: 30px auto;
+      width: 100%;
+      max-width: 350px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-submit-exam:hover {
+      background: linear-gradient(135deg, #2f855a 0%, #22543d 100%);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(56,161,105,0.4);
     }
   </style>
 </head>
@@ -128,48 +234,58 @@
 
 <canvas id="snapshotCanvas" style="display: none;" width="640" height="480"></canvas>
 
-<div class="jumbotron my-4">
+<div class="exam-container">
+  <!-- Exam Header -->
+  <div class="exam-header-card">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700; color: #1a202c;">📘 Course: {{ course.course_name }}</h2>
+        <small class="text-muted"><i class="fas fa-tasks"></i> Total Questions: {{ questions|length }}</small>
+      </div>
+      <span class="label label-info p-2" style="font-size: 14px;">Total Marks: {{ course.total_marks }}</span>
+    </div>
+  </div>
+
+  <!-- Warning Banner -->
   <div class="warning-banner">
-    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT PROCTORING RULES:</strong> Do NOT switch browser tabs or minimize window! Doing so will immediately capture a snapshot evidence and AUTO-SUBMIT your exam.
+    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT PROCTORING RULES:</strong> Do NOT switch browser tabs or minimize window! Doing so will immediately capture evidence snapshot and <strong>AUTO-SUBMIT</strong> your exam.
   </div>
 
   <form id="examForm" class="form" autocomplete="off" onsubmit="return saveAns()" action="/student/calculate-marks" method="POST">
     {% csrf_token %}
-    <h2 style="text-align: center;">Course: {{course.course_name}}</h2>
-    {% for q in questions%}
-    <h3 class="text-danger">{{ forloop.counter }}. {{q.question}}</h3><h4 style="text-align: right;">[{{q.marks}} Marks]</h4>
-    
-      <div class="form-check mx-4">
-        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt1" value="Option1">
-        <label class="form-check-label" for="q{{ forloop.counter }}_opt1">
-          {{q.option1}}
-        </label>
+
+    {% for q in questions %}
+    <div class="question-card">
+      <span class="marks-badge">[{{ q.marks }} Marks]</span>
+      <div class="question-title">
+        <span class="text-primary">{{ forloop.counter }}.</span> {{ q.question }}
       </div>
 
-      <div class="form-check mx-4">
-        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt2" value="Option2">
-        <label class="form-check-label" for="q{{ forloop.counter }}_opt2">
-          {{q.option2}}
-        </label>
-      </div>
+      <label class="option-box">
+        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt1" value="Option1">
+        <span class="option-text">A. {{ q.option1 }}</span>
+      </label>
 
-      <div class="form-check mx-4">
-        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt3" value="Option3">
-        <label class="form-check-label" for="q{{ forloop.counter }}_opt3">
-          {{q.option3}}
-        </label>
-      </div>
+      <label class="option-box">
+        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt2" value="Option2">
+        <span class="option-text">B. {{ q.option2 }}</span>
+      </label>
 
-      <div class="form-check mx-4">
-        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt4" value="Option4">
-        <label class="form-check-label" for="q{{ forloop.counter }}_opt4">
-          {{q.option4}}
-        </label>
-      </div>
+      <label class="option-box">
+        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt3" value="Option3">
+        <span class="option-text">C. {{ q.option3 }}</span>
+      </label>
 
+      <label class="option-box">
+        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt4" value="Option4">
+        <span class="option-text">D. {{ q.option4 }}</span>
+      </label>
+    </div>
     {% endfor %}
-    <br>
-    <input class="btn btn-success btn-lg" style="border-radius: 0%;" type="submit" value="Submit Answers">  
+
+    <button type="submit" class="btn btn-submit-exam">
+      <i class="fas fa-paper-plane"></i> Submit Answers
+    </button>  
   </form>
 </div>
 
@@ -218,7 +334,6 @@
       formData.append('image_data', imageData);
     }
 
-    // Send AJAX request
     fetch('/student/log-cheating-event', {
       method: 'POST',
       body: formData,
