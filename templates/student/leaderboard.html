@@ -1,0 +1,139 @@
+{% extends base_template %}
+{% block content %}
+{% load static %}
+
+<head>
+  <style>
+    .card-box {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-top: 10px;
+    }
+    .rank-badge {
+      font-size: 18px;
+      font-weight: bold;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .rank-1 { background: #fef08a; color: #854d0e; border: 2px solid #eab308; }
+    .rank-2 { background: #e2e8f0; color: #475569; border: 2px solid #94a3b8; }
+    .rank-3 { background: #ffedd5; color: #9a3412; border: 2px solid #f97316; }
+    .rank-other { background: #f1f5f9; color: #64748b; }
+
+    .student-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e2e8f0;
+    }
+  </style>
+</head>
+
+<div class="container-fluid px-3 my-2">
+  <div class="card-box">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 15px;">
+      <div>
+        <h2 style="font-size: 24px; font-weight: bold;"><i class="fas fa-trophy text-warning"></i> Examination Leaderboard</h2>
+        <p class="text-muted mb-0">Official rankings for Live Scheduled Exams (Practice mode attempts are excluded).</p>
+      </div>
+
+      <!-- Course Selector Dropdown -->
+      <div>
+        <select class="form-control" style="width: 250px; height: 42px; font-weight: bold;" onchange="location = this.value;">
+          {% for c in courses %}
+            <option value="/student/leaderboard/{{ c.id }}" {% if selected_course and selected_course.id == c.id %}selected{% endif %}>
+              📘 {{ c.course_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {% if selected_course %}
+      <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <strong>Selected Course:</strong> {{ selected_course.course_name }}<br>
+          <small>Total Marks: {{ selected_course.total_marks }} | Questions: {{ selected_course.question_number }}</small>
+        </div>
+        <span class="badge badge-primary p-2" style="font-size: 14px;">Ranked Students: {{ leaderboard_data|length }}</span>
+      </div>
+
+      {% if leaderboard_data %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="thead-dark">
+              <tr>
+                <th style="width: 80px;">Rank</th>
+                <th>Student</th>
+                <th>Score Obtained</th>
+                <th>Percentage</th>
+                <th>Exam Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in leaderboard_data %}
+              <tr>
+                <td>
+                  {% if item.rank == 1 %}
+                    <div class="rank-badge rank-1" title="Gold Medal - 1st Place">🥇</div>
+                  {% elif item.rank == 2 %}
+                    <div class="rank-badge rank-2" title="Silver Medal - 2nd Place">🥈</div>
+                  {% elif item.rank == 3 %}
+                    <div class="rank-badge rank-3" title="Bronze Medal - 3rd Place">🥉</div>
+                  {% else %}
+                    <div class="rank-badge rank-other">#{{ item.rank }}</div>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex align-items-center" style="gap: 12px;">
+                    {% if item.result.student.profile_pic %}
+                      <img src="/static/{{ item.result.student.profile_pic }}" class="student-img" alt="Student Photo">
+                    {% else %}
+                      <img src="{% static 'image/ali_icon.jpg' %}" class="student-img" alt="Student Photo">
+                    {% endif %}
+                    <div>
+                      <strong style="font-size: 16px;">{{ item.result.student.get_name }}</strong><br>
+                      <small class="text-muted"><i class="fas fa-phone"></i> {{ item.result.student.mobile }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge badge-success p-2" style="font-size: 15px;">
+                    {{ item.result.marks }} / {{ selected_course.total_marks }}
+                  </span>
+                </td>
+                <td>
+                  <strong class="text-primary">
+                    {% widthratio item.result.marks selected_course.total_marks 100 %}%
+                  </strong>
+                </td>
+                <td>
+                  <small class="text-muted"><i class="far fa-clock"></i> {{ item.result.date|date:"d M Y, h:i A" }}</small>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-warning text-center my-4">
+          <h4><i class="fas fa-exclamation-circle"></i> No Live Exam Submissions Yet</h4>
+          <p class="mb-0">There are no official live exam records logged for <strong>{{ selected_course.course_name }}</strong> yet.</p>
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="alert alert-info text-center my-4">
+        <h4>No Courses Available</h4>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock content %}

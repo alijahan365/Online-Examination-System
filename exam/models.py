@@ -41,5 +41,7 @@ class Result(models.Model):
     exam = models.ForeignKey(Course, on_delete=models.CASCADE)
     marks = models.PositiveIntegerField()
     date = models.DateTimeField(auto_now=True)
+    is_practice = models.BooleanField(default=False)
+
 
 

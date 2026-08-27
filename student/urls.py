@@ -18,4 +18,6 @@ path('student-marks', views.student_marks_view,name='student-marks'),
 path('log-cheating-event', views.log_cheating_event_view,name='log-cheating-event'),
 path('proctoring-logs', views.proctoring_logs_view,name='proctoring-logs'),
 path('ask-doubt', views.student_ask_doubt_view,name='ask-doubt'),
+path('leaderboard', views.leaderboard_view,name='leaderboard'),
+path('leaderboard/<int:pk>', views.leaderboard_view,name='leaderboard-course'),
 ]

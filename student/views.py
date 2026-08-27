@@ -55,20 +55,35 @@ def student_exam_view(request):
     courses = QMODEL.Course.objects.all()
     now = timezone.now()
     
-    course_list = []
+    live_course_list = []
+    past_course_list = []
+    
     for c in courses:
-        status = 'LIVE'
-        if c.start_time and now < c.start_time:
-            status = 'SCHEDULED'
-        elif c.end_time and now > c.end_time:
-            status = 'CLOSED'
+        if c.start_time and c.end_time:
+            if now <= c.end_time:
+                status = 'LIVE'
+                if now < c.start_time:
+                    status = 'SCHEDULED'
+                live_course_list.append({
+                    'course': c,
+                    'status': status
+                })
+            else:
+                past_course_list.append({
+                    'course': c,
+                    'status': 'PRACTICE'
+                })
+        else:
+            past_course_list.append({
+                'course': c,
+                'status': 'PRACTICE'
+            })
         
-        course_list.append({
-            'course': c,
-            'status': status
-        })
-        
-    return render(request, 'student/student_exam.html', {'course_list': course_list, 'now': now})
+    return render(request, 'student/student_exam.html', {
+        'live_course_list': live_course_list,
+        'past_course_list': past_course_list,
+        'now': now
+    })
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
@@ -79,8 +94,19 @@ def take_exam_view(request,pk):
     total_marks=0
     for q in questions:
         total_marks=total_marks + q.marks
+
+    now = timezone.now()
+    is_live = False
+    if course.start_time and course.end_time:
+        if course.start_time <= now <= course.end_time:
+            is_live = True
     
-    return render(request,'student/take_exam.html',{'course':course,'total_questions':total_questions,'total_marks':total_marks})
+    return render(request,'student/take_exam.html',{
+        'course':course,
+        'total_questions':total_questions,
+        'total_marks':total_marks,
+        'is_live': is_live
+    })
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
@@ -88,8 +114,6 @@ def start_exam_view(request,pk):
     course=QMODEL.Course.objects.get(id=pk)
     now = timezone.now()
     if course.start_time and now < course.start_time:
-        return redirect('student-exam')
-    if course.end_time and now > course.end_time:
         return redirect('student-exam')
 
     questions=QMODEL.Question.objects.all().filter(course=course)
@@ -116,13 +140,22 @@ def calculate_marks_view(request):
             if selected_ans == actual_answer:
                 total_marks = total_marks + questions[i].marks
         student = models.Student.objects.get(user_id=request.user.id)
+        
+        now = timezone.now()
+        is_practice_attempt = True
+        if course.start_time and course.end_time:
+            if course.start_time <= now <= course.end_time:
+                is_practice_attempt = False
+
         result = QMODEL.Result()
-        result.marks=total_marks
-        result.exam=course
-        result.student=student
+        result.marks = total_marks
+        result.exam = course
+        result.student = student
+        result.is_practice = is_practice_attempt
         result.save()
 
         return HttpResponseRedirect('view-result')
+
 
 
 
@@ -247,6 +280,50 @@ def proctoring_logs_view(request):
         base_template = 'exam/adminbase.html'
 
     return render(request, 'student/proctoring_logs.html', {'grouped_logs': grouped_logs, 'base_template': base_template})
+
+@login_required
+def leaderboard_view(request, pk=None):
+    courses = QMODEL.Course.objects.all()
+    selected_course = None
+    
+    if pk:
+        try:
+            selected_course = QMODEL.Course.objects.get(id=pk)
+        except QMODEL.Course.DoesNotExist:
+            pass
+    if not selected_course and courses.exists():
+        selected_course = courses.first()
+
+    leaderboard_data = []
+    if selected_course:
+        results = QMODEL.Result.objects.filter(exam=selected_course, is_practice=False).order_by('-marks', 'date')
+        seen_students = set()
+        rank = 1
+        for r in results:
+            if r.student.id not in seen_students:
+                seen_students.add(r.student.id)
+                leaderboard_data.append({
+                    'rank': rank,
+                    'result': r
+                })
+                rank += 1
+
+    if request.user.is_superuser or request.user.is_staff:
+        base_template = 'exam/adminbase.html'
+    elif TMODEL.Teacher.objects.filter(user=request.user).exists():
+        base_template = 'teacher/teacherbase.html'
+    elif models.Student.objects.filter(user=request.user).exists():
+        base_template = 'student/studentbase.html'
+    else:
+        base_template = 'exam/adminbase.html'
+
+    return render(request, 'student/leaderboard.html', {
+        'courses': courses,
+        'selected_course': selected_course,
+        'leaderboard_data': leaderboard_data,
+        'base_template': base_template
+    })
+
 
 
 
