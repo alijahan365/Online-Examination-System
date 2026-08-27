@@ -177,7 +177,7 @@
     <center>
 
       {% if request.user.student.profile_pic %}
-        <img src="{% static request.user.student.profile_pic.url %}" class="profile_image" alt="">
+        <img src="/static/{{ request.user.student.profile_pic }}" class="profile_image" alt="">
       {% else %}
         <img src="{% static "image/ali_icon.jpg" %}" class="profile_image" alt="">
       {% endif %}
