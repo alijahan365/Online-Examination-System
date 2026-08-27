@@ -1,6 +1,6 @@
 {% extends 'student/studentbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
 <head>
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
@@ -16,8 +16,11 @@
       text-align: center;
     }
 
-    .row {
-      margin: 100px;
+    .badge-status {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -25,23 +28,54 @@
 <div class="container">
   <div class="panel panel-primary">
     <div class="panel-heading">
-      <h6 class="panel-title">Available Courses</h6>
+      <h6 class="panel-title">Available Live & Scheduled Examinations</h6>
     </div>
     <table class="table table-hover table-bordered" id="dev-table">
       <thead>
         <tr>
-
           <th>Exam Name</th>
-          
+          <th>Timing & Schedule</th>
+          <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
-      {% for t in courses %}
+      {% for item in course_list %}
       <tr>
-
-        <td> {{t.course_name}}</td>
-        
-        <td><a class="btn btn-success btn-sm" style="border-radius:0px;" href="{% url 'take-exam' t.id  %}"><span class="glyphicon glyphicon-check"></span> Attend Exam</a></td>
+        <td><strong>{{ item.course.course_name }}</strong></td>
+        <td>
+          {% if item.course.start_time %}
+            <small class="text-muted">
+              📅 Start: {{ item.course.start_time|date:"d M Y, h:i A" }}<br>
+              ⌛ End: {{ item.course.end_time|date:"d M Y, h:i A" }}
+            </small>
+          {% else %}
+            <span class="text-success">Anytime Active</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if item.status == 'LIVE' %}
+            <span class="label label-success badge-status">🟢 LIVE NOW</span>
+          {% elif item.status == 'SCHEDULED' %}
+            <span class="label label-warning badge-status">🟡 SCHEDULED</span>
+          {% else %}
+            <span class="label label-danger badge-status">🔴 CLOSED</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if item.status == 'LIVE' %}
+            <a class="btn btn-success btn-sm" style="border-radius:0px;" href="{% url 'take-exam' item.course.id %}">
+              <span class="glyphicon glyphicon-check"></span> Enter Exam
+            </a>
+          {% elif item.status == 'SCHEDULED' %}
+            <button class="btn btn-warning btn-sm" disabled style="border-radius:0px;">
+              <span class="glyphicon glyphicon-time"></span> Starts {{ item.course.start_time|date:"h:i A" }}
+            </button>
+          {% else %}
+            <button class="btn btn-danger btn-sm" disabled style="border-radius:0px;">
+              <span class="glyphicon glyphicon-lock"></span> Exam Ended
+            </button>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </table>

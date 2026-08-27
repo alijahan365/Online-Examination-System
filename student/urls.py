@@ -17,4 +17,5 @@ path('check-marks/<int:pk>', views.check_marks_view,name='check-marks'),
 path('student-marks', views.student_marks_view,name='student-marks'),
 path('log-cheating-event', views.log_cheating_event_view,name='log-cheating-event'),
 path('proctoring-logs', views.proctoring_logs_view,name='proctoring-logs'),
+path('ask-doubt', views.student_ask_doubt_view,name='ask-doubt'),
 ]

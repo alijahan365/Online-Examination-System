@@ -129,3 +129,29 @@ def teacher_proctoring_logs_view(request):
     logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
     return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': 'teacher/teacherbase.html'})
 
+@login_required(login_url='teacherlogin')
+@user_passes_test(is_teacher)
+def teacher_contact_messages_view(request):
+    teacher = models.Teacher.objects.get(user_id=request.user.id)
+    messages = QMODEL.ContactMessage.objects.filter(teacher=teacher).order_by('-created_at')
+    return render(request, 'exam/contact_messages.html', {'messages': messages, 'base_template': 'teacher/teacherbase.html'})
+
+@login_required(login_url='teacherlogin')
+@user_passes_test(is_teacher)
+def teacher_student_doubts_view(request):
+    teacher = models.Teacher.objects.get(user_id=request.user.id)
+    doubts = SMODEL.StudentDoubt.objects.filter(teacher=teacher).order_by('-created_at')
+    return render(request, 'teacher/teacher_doubts.html', {'doubts': doubts})
+
+@login_required(login_url='teacherlogin')
+@user_passes_test(is_teacher)
+def reply_doubt_view(request, pk):
+    if request.method == 'POST':
+        doubt = SMODEL.StudentDoubt.objects.get(id=pk)
+        reply_text = request.POST.get('reply_text', '')
+        doubt.reply_text = reply_text
+        doubt.is_answered = True
+        doubt.save()
+    return HttpResponseRedirect('/teacher/student-doubts')
+
+

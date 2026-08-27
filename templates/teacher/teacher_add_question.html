@@ -2,53 +2,54 @@
 {% load widget_tweaks %}
 {% block content %}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <style>
-       <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  a:link {
-        text-decoration: none;
-      }
-    
-  </style>
 </head>
-<h2 style="text-align:center;">Add Question</h2>
-<form method="POST" autocomplete="off" style="margin:100px;margin-top: 0px;">
-    {%csrf_token%}
-    <div class="form-group">
-        <label for="question">Course</label>
-      {% render_field questionForm.courseID|attr:'required:true' class="form-control"  %}
-        <br>
 
-      <label for="question">Question</label>
-      {% render_field questionForm.question|attr:'required:true' class="form-control" placeholder="Example: What is the relation calculus?" %}
-        <br>
+<h2 style="text-align:center;">Add Question to Course</h2>
+<form method="POST" autocomplete="off" style="max-width: 700px; margin: 20px auto; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="question">Course</label>
+      {% render_field questionForm.courseID|attr:'required:true' class="form-control" %}
+      
+      <br>
+      <label for="question">Question Text</label>
+      {% render_field questionForm.question|attr:'required:true' class="form-control" placeholder="Example: What is relational calculus?" %}
+      
+      <br>
       <label for="question_number">Marks</label>
       {% render_field questionForm.marks|attr:'required:true' class="form-control" placeholder="Example: 5" %}
-        <br>
+      
+      <br>
       <label for="option1">Option 1</label>
       {% render_field questionForm.option1|attr:'required:true' class="form-control" placeholder="Example: It is a kind of procedural language" %}
-        <br>
+      
+      <br>
       <label for="option2">Option 2</label>
       {% render_field questionForm.option2|attr:'required:true' class="form-control" placeholder="Example: It is a non-procedural language" %}
-        <br>
+      
+      <br>
       <label for="option3">Option 3</label>
       {% render_field questionForm.option3|attr:'required:true' class="form-control" placeholder="Example: It is a high-level language" %}
-        <br>
+      
+      <br>
       <label for="option4">Option 4</label>
       {% render_field questionForm.option4|attr:'required:true' class="form-control" placeholder="Example: It is Data Definition language" %}
-        <br>
+      
+      <br>
       <label for="answer">Correct Answer</label>
       {% render_field questionForm.answer|attr:'required:true' class="form-control" %}
+
+      <br>
+      <label for="explanation" class="text-primary">💡 Explanation / Reason (2-3 Lines)</label>
+      {% render_field questionForm.explanation class="form-control" placeholder="Explain in 2-3 lines why this answer is correct..." rows="3" %}
     </div>
     
-
-    <button type="submit" class="btn btn-success" style="border-radius: 0%;">Submit Question</button>
+    <button type="submit" class="btn btn-success btn-block" style="border-radius:0px; font-weight: bold; padding: 10px;">
+      <i class="glyphicon glyphicon-plus"></i> Save Question & Explanation
+    </button>
   </form>
+
 <br><br><br>
 {% endblock content %}

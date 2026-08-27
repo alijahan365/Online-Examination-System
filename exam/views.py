@@ -292,8 +292,19 @@ def contactus_view(request):
         sub = forms.ContactusForm(request.POST)
         if sub.is_valid():
             email = sub.cleaned_data['Email']
-            name=sub.cleaned_data['Name']
+            name = sub.cleaned_data['Name']
+            recipient_type = sub.cleaned_data.get('recipient_type', 'Admin')
+            teacher = sub.cleaned_data.get('teacher')
             message = sub.cleaned_data['Message']
+            
+            models.ContactMessage.objects.create(
+                name=name,
+                email=email,
+                recipient_type=recipient_type,
+                teacher=teacher,
+                message=message
+            )
+
             try:
                 send_mail(str(name)+' || '+str(email), message, settings.EMAIL_HOST_USER, settings.EMAIL_RECEIVING_USER, fail_silently=True)
             except Exception:
@@ -301,7 +312,10 @@ def contactus_view(request):
             return render(request, 'exam/contactussuccess.html')
     return render(request, 'exam/contactus.html', {'form':sub})
 
-
+@login_required(login_url='adminlogin')
+def admin_contact_messages_view(request):
+    messages = models.ContactMessage.objects.filter(recipient_type='Admin').order_by('-created_at')
+    return render(request, 'exam/contact_messages.html', {'messages': messages, 'base_template': 'exam/adminbase.html'})
 
 @login_required(login_url='adminlogin')
 def admin_proctoring_logs_view(request):

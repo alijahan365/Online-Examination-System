@@ -19,4 +19,7 @@ path('teacher-view-question', views.teacher_view_question_view,name='teacher-vie
 path('see-question/<int:pk>', views.see_question_view,name='see-question'),
 path('remove-question/<int:pk>', views.remove_question_view,name='remove-question'),
 path('teacher-proctoring-logs', views.teacher_proctoring_logs_view,name='teacher-proctoring-logs'),
+path('teacher-contact-messages', views.teacher_contact_messages_view,name='teacher-contact-messages'),
+path('student-doubts', views.teacher_student_doubts_view,name='student-doubts'),
+path('reply-doubt/<int:pk>', views.reply_doubt_view,name='reply-doubt'),
 ]

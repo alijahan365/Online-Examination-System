@@ -1,0 +1,58 @@
+{% extends base_template %}
+{% block content %}
+{% load static %}
+
+<head>
+  <style>
+    .card-box {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-top: 10px;
+    }
+    .msg-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+  </style>
+</head>
+
+<div class="container-fluid px-3 my-2">
+  <div class="card-box">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 style="font-size: 22px;">📬 Contact Messages Inbox</h2>
+      <span class="badge badge-info p-2" style="font-size: 14px;">Total Messages: {{ messages|length }}</span>
+    </div>
+
+    {% if messages %}
+    <div class="row">
+      {% for msg in messages %}
+      <div class="col-md-12">
+        <div class="msg-card">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <h5 class="mb-0 text-primary"><strong>{{ msg.name }}</strong></h5>
+              <small class="text-muted"><i class="fas fa-envelope"></i> {{ msg.email }}</small>
+            </div>
+            <small class="text-muted"><i class="far fa-clock"></i> {{ msg.created_at|date:"d M Y, h:i A" }}</small>
+          </div>
+          <hr class="my-2">
+          <p class="mb-0 text-dark" style="font-size: 15px; white-space: pre-line;">{{ msg.message }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center my-4">
+      <h4><i class="fas fa-inbox"></i> No Messages Found</h4>
+      <p class="mb-0">Your inbox is currently empty.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock content %}

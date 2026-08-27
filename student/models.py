@@ -25,3 +25,14 @@ class CheatingLog(models.Model):
 
     def __str__(self):
         return f"{self.student.get_name} - {self.course_name} ({self.reason})"
+
+class StudentDoubt(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    teacher = models.ForeignKey('teacher.Teacher', on_delete=models.CASCADE)
+    question_text = models.TextField()
+    reply_text = models.TextField(blank=True, default='')
+    is_answered = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Doubt by {self.student.get_name} to {self.teacher.get_name}"

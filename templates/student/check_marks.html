@@ -1,6 +1,6 @@
 {% extends 'student/studentbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
 <head>
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
@@ -8,16 +8,13 @@
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 
   <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
+    .explanation-box {
+      background-color: #eef9f6;
+      border-left: 4px solid #10b981;
+      padding: 10px 15px;
+      margin-top: 8px;
+      border-radius: 4px;
+      color: #064e3b;
     }
   </style>
 </head>
@@ -25,30 +22,58 @@
 <div class="container">
   <div class="panel panel-primary">
     <div class="panel-heading">
-      <h6 class="panel-title">My Marks</h6>
+      <h6 class="panel-title" style="text-align: center;">Examination Score & Review: {{ course.course_name }}</h6>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
+
+    {% if not results_published %}
+      <div class="alert alert-warning text-center my-4" style="margin: 20px;">
+        <h4>🔒 Results Pending Publication</h4>
+        <p class="mb-0">Official results and detailed answer explanations for <strong>{{ course.course_name }}</strong> are scheduled to be published on <strong>{{ course.result_publish_time|date:"d M Y, h:i A" }}</strong>.</p>
+      </div>
+    {% else %}
+      <table class="table table-hover table-bordered" id="dev-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Your Score</th>
+            <th>Attempt</th>
+            <th>Exam Date</th>
+          </tr>
+        </thead>
+        {% for t in results %}
         <tr>
-
-          <th>Course</th>
-          <th>Total Marks</th>
-          <th>Number of Attempts</th>
-          <th>Exam Date</th>
+          <td><strong>{{ t.exam.course_name }}</strong></td>
+          <td><span class="label label-success" style="font-size: 14px;">{{ t.marks }} / {{ total_marks }}</span></td>
+          <td>Attempt {{ forloop.counter }}</td>
+          <td>{{ t.date|date:"d M Y, h:i A" }}</td>
         </tr>
-      </thead>
-      {% for t in results %}
-      <tr>
+        {% endfor %}
+      </table>
 
-        <td> {{t.exam}}</td>
-        <td> {{t.marks}} / {{total_marks}}</td>
-        <td>Attempt {{ forloop.counter }}</td>
-        <td> {{t.date}}</td>
-        
-        
-      </tr>
-      {% endfor %}
-    </table>
+      <!-- Question & Answer Review with Explanations -->
+      <div style="margin-top: 30px;">
+        <h3 class="text-primary">📝 Question & Answer Explanations</h3>
+        <hr>
+        {% for q in questions %}
+          <div class="well">
+            <h4><strong>Q{{ forloop.counter }}: {{ q.question }}</strong> <span class="label label-info pull-right">[{{ q.marks }} Marks]</span></h4>
+            <ul class="list-group">
+              <li class="list-group-item {% if q.answer == 'Option1' %}list-group-item-success{% endif %}">A. {{ q.option1 }} {% if q.answer == 'Option1' %}<strong>(Correct Answer)</strong>{% endif %}</li>
+              <li class="list-group-item {% if q.answer == 'Option2' %}list-group-item-success{% endif %}">B. {{ q.option2 }} {% if q.answer == 'Option2' %}<strong>(Correct Answer)</strong>{% endif %}</li>
+              <li class="list-group-item {% if q.answer == 'Option3' %}list-group-item-success{% endif %}">C. {{ q.option3 }} {% if q.answer == 'Option3' %}<strong>(Correct Answer)</strong>{% endif %}</li>
+              <li class="list-group-item {% if q.answer == 'Option4' %}list-group-item-success{% endif %}">D. {{ q.option4 }} {% if q.answer == 'Option4' %}<strong>(Correct Answer)</strong>{% endif %}</li>
+            </ul>
+
+            {% if q.explanation %}
+              <div class="explanation-box">
+                <strong>💡 Explanation / Reason:</strong>
+                <p class="mb-0" style="white-space: pre-line; margin-top: 5px;">{{ q.explanation }}</p>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 </div>
 

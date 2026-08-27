@@ -38,11 +38,12 @@ def student_signup_view(request):
 def is_student(user):
     return user.groups.filter(name='STUDENT').exists()
 
+from django.utils import timezone
+
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_dashboard_view(request):
     dict={
-    
     'total_course':QMODEL.Course.objects.all().count(),
     'total_question':QMODEL.Question.objects.all().count(),
     }
@@ -51,8 +52,23 @@ def student_dashboard_view(request):
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_exam_view(request):
-    courses=QMODEL.Course.objects.all()
-    return render(request,'student/student_exam.html',{'courses':courses})
+    courses = QMODEL.Course.objects.all()
+    now = timezone.now()
+    
+    course_list = []
+    for c in courses:
+        status = 'LIVE'
+        if c.start_time and now < c.start_time:
+            status = 'SCHEDULED'
+        elif c.end_time and now > c.end_time:
+            status = 'CLOSED'
+        
+        course_list.append({
+            'course': c,
+            'status': status
+        })
+        
+    return render(request, 'student/student_exam.html', {'course_list': course_list, 'now': now})
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
@@ -70,6 +86,12 @@ def take_exam_view(request,pk):
 @user_passes_test(is_student)
 def start_exam_view(request,pk):
     course=QMODEL.Course.objects.get(id=pk)
+    now = timezone.now()
+    if course.start_time and now < course.start_time:
+        return redirect('student-exam')
+    if course.end_time and now > course.end_time:
+        return redirect('student-exam')
+
     questions=QMODEL.Question.objects.all().filter(course=course)
     if request.method=='POST':
         pass
@@ -121,14 +143,48 @@ def check_marks_view(request,pk):
     total_marks=0
     for q in questions:
         total_marks=total_marks + q.marks
+
+    now = timezone.now()
+    results_published = True
+    if course.result_publish_time and now < course.result_publish_time:
+        results_published = False
     
-    return render(request,'student/check_marks.html',{'results':results, 'total_marks':total_marks})
+    return render(request,'student/check_marks.html',{
+        'course': course,
+        'results': results,
+        'questions': questions,
+        'total_marks': total_marks,
+        'results_published': results_published,
+        'now': now
+    })
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_marks_view(request):
     courses=QMODEL.Course.objects.all()
     return render(request,'student/student_marks.html',{'courses':courses})
+
+@login_required(login_url='studentlogin')
+@user_passes_test(is_student)
+def student_ask_doubt_view(request):
+    student = models.Student.objects.get(user_id=request.user.id)
+    teachers = TMODEL.Teacher.objects.all()
+    doubts = models.StudentDoubt.objects.filter(student=student).order_by('-created_at')
+
+    if request.method == 'POST':
+        teacher_id = request.POST.get('teacher_id')
+        question_text = request.POST.get('question_text')
+        if teacher_id and question_text:
+            teacher = TMODEL.Teacher.objects.get(id=teacher_id)
+            models.StudentDoubt.objects.create(
+                student=student,
+                teacher=teacher,
+                question_text=question_text
+            )
+            return redirect('ask-doubt')
+
+    return render(request, 'student/student_doubts.html', {'teachers': teachers, 'doubts': doubts})
+
 
 
 import base64

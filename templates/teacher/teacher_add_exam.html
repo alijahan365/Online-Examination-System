@@ -2,37 +2,50 @@
 {% load widget_tweaks %}
 {% block content %}
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <style>
-       <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  a:link {
-        text-decoration: none;
-      }
-    
-  </style>
 </head>
-<h2 style="text-align:center; ">Add Course Info</h2>
-<form method="POST" autocomplete="off" style="margin:100px;margin-top: 0px;">
-    {%csrf_token%}
-    <div class="form-group">
-      <label for="course_name">Course Name</label>
-      {% render_field courseForm.course_name class="form-control" placeholder="Example: Databases" %}
 
-      <label for="question_number">Total Question</label>
-      {% render_field courseForm.question_number class="form-control" placeholder="Example: 10" %}
+<h2 style="text-align:center;">Add Course & Live Schedule</h2>
+<form method="POST" autocomplete="off" style="max-width: 600px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="course_name">Course Name</label>
+    {% render_field courseForm.course_name class="form-control" placeholder="Example: Databases" required="true" %}
+  </div>
 
-      <label for="total_marks">Total Marks</label>
-      {% render_field courseForm.total_marks class="form-control" placeholder="Example: 100" %}
-    </div>
-    
+  <div class="form-group">
+    <label for="question_number">Total Questions</label>
+    {% render_field courseForm.question_number class="form-control" placeholder="Example: 10" required="true" %}
+  </div>
 
-    <button type="submit" class="btn btn-success" style="border-radius: 0%;">Submit Info</button>
-  </form>
+  <div class="form-group">
+    <label for="total_marks">Total Marks</label>
+    {% render_field courseForm.total_marks class="form-control" placeholder="Example: 100" required="true" %}
+  </div>
+
+  <hr>
+  <h4 class="text-primary">📅 Live Exam Scheduling (Optional)</h4>
+
+  <div class="form-group">
+    <label for="start_time">Exam Start Time</label>
+    {% render_field courseForm.start_time class="form-control" %}
+  </div>
+
+  <div class="form-group">
+    <label for="end_time">Exam End Time</label>
+    {% render_field courseForm.end_time class="form-control" %}
+  </div>
+
+  <div class="form-group">
+    <label for="result_publish_time">Result Publication Time</label>
+    {% render_field courseForm.result_publish_time class="form-control" %}
+  </div>
+
+  <button type="submit" class="btn btn-success btn-block" style="border-radius:0px; font-weight: bold; padding: 10px;">
+    <i class="glyphicon glyphicon-plus"></i> Save Course & Schedule
+  </button>
+</form>
+
 <br><br><br>
 {% endblock content %}
