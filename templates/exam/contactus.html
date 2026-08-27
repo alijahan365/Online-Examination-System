@@ -1,35 +1,86 @@
 <!DOCTYPE html>
 {% load static %}
+{% load widget_tweaks %}
 <html lang="en" dir="ltr">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | Online Exam System</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-
-
-
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding-top: 80px;
+    }
+    .contact-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      max-width: 600px;
+      margin: 30px auto;
+    }
+    .btn-submit {
+      background: #007bff;
+      border: none;
+      padding: 12px 30px;
+      font-weight: bold;
+      border-radius: 30px;
+      transition: all 0.3s;
+    }
+    .btn-submit:hover {
+      background: #0056b3;
+      transform: translateY(-2px);
+    }
+    @media (max-width: 576px) {
+      .contact-card {
+        margin: 15px;
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   {% include "exam/navbar.html" %}
-  <br><br>
 
-  <center>
-    <h3 class='alert alert-success'>Please fillup the form in order to contact us</h3>
-
-    <form method="POST" autocomplete="off">
-      <!-- Very Important csrf Token -->
-      {% csrf_token %}
-      <div class="form-group">
-        <p>
-        <h3>{{ form.as_p }}</h3>
-        </p>
-        <br>
-        <input type="submit" value="Submit" class='btn btn-primary' style="border-radius: 0%;">
+  <div class="container">
+    <div class="contact-card">
+      <div class="text-center mb-4">
+        <h2 style="color: #212529; font-weight: 700;"><i class="fas fa-envelope-open-text text-primary"></i> Contact Us</h2>
+        <p class="text-muted">Please fill out the form below to send us a message.</p>
       </div>
-    </form>
-  </center>
+
+      <form method="POST" autocomplete="off">
+        {% csrf_token %}
+        
+        <div class="form-group mb-3">
+          <label for="id_Name" class="font-weight-bold">Name</label>
+          {% render_field form.Name class="form-control" placeholder="Enter your full name" required="true" %}
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="id_Email" class="font-weight-bold">Email Address</label>
+          {% render_field form.Email class="form-control" placeholder="Enter your email address" required="true" %}
+        </div>
+
+        <div class="form-group mb-4">
+          <label for="id_Message" class="font-weight-bold">Message</label>
+          {% render_field form.Message class="form-control" placeholder="Write your message here..." rows="4" required="true" %}
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary btn-block btn-submit">
+            <i class="fas fa-paper-plane"></i> Send Message
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   {% include "exam/footer.html" %}
 </body>
