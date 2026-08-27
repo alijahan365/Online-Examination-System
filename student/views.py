@@ -233,20 +233,21 @@ def log_cheating_event_view(request):
     return JsonResponse({'status': 'failed'}, status=400)
 
 
+from exam.views import get_grouped_proctoring_logs
+
 @login_required
 def proctoring_logs_view(request):
-    logs = models.CheatingLog.objects.all().order_by('-timestamp')
+    grouped_logs = get_grouped_proctoring_logs()
     
     if request.user.is_superuser or request.user.is_staff:
         base_template = 'exam/adminbase.html'
     elif TMODEL.Teacher.objects.filter(user=request.user).exists():
         base_template = 'teacher/teacherbase.html'
-    elif models.Student.objects.filter(user=request.user).exists():
-        base_template = 'student/studentbase.html'
     else:
         base_template = 'exam/adminbase.html'
 
-    return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': base_template})
+    return render(request, 'student/proctoring_logs.html', {'grouped_logs': grouped_logs, 'base_template': base_template})
+
 
 
 

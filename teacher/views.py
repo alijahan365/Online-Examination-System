@@ -123,11 +123,14 @@ def remove_question_view(request,pk):
     question.delete()
     return HttpResponseRedirect('/teacher/teacher-view-question')
 
+from exam.views import get_grouped_proctoring_logs
+
 @login_required(login_url='teacherlogin')
 @user_passes_test(is_teacher)
 def teacher_proctoring_logs_view(request):
-    logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
-    return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': 'teacher/teacherbase.html'})
+    grouped_logs = get_grouped_proctoring_logs()
+    return render(request, 'student/proctoring_logs.html', {'grouped_logs': grouped_logs, 'base_template': 'teacher/teacherbase.html'})
+
 
 @login_required(login_url='teacherlogin')
 @user_passes_test(is_teacher)

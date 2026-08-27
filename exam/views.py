@@ -312,6 +312,24 @@ def contactus_view(request):
             return render(request, 'exam/contactussuccess.html')
     return render(request, 'exam/contactus.html', {'form':sub})
 
+def get_grouped_proctoring_logs():
+    all_logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
+    grouped_dict = {}
+    for log in all_logs:
+        key = (log.student.id, log.course_name)
+        if key not in grouped_dict:
+            grouped_dict[key] = {
+                'id': f"{log.student.id}_{abs(hash(log.course_name))}",
+                'student': log.student,
+                'course_name': log.course_name,
+                'total_flags': 0,
+                'latest_timestamp': log.timestamp,
+                'logs': []
+            }
+        grouped_dict[key]['total_flags'] += 1
+        grouped_dict[key]['logs'].append(log)
+    return list(grouped_dict.values())
+
 @login_required(login_url='adminlogin')
 def admin_contact_messages_view(request):
     messages = models.ContactMessage.objects.filter(recipient_type='Admin').order_by('-created_at')
@@ -319,8 +337,9 @@ def admin_contact_messages_view(request):
 
 @login_required(login_url='adminlogin')
 def admin_proctoring_logs_view(request):
-    logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
-    return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': 'exam/adminbase.html'})
+    grouped_logs = get_grouped_proctoring_logs()
+    return render(request, 'student/proctoring_logs.html', {'grouped_logs': grouped_logs, 'base_template': 'exam/adminbase.html'})
+
 
 
 

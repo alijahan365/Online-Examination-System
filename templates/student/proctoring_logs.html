@@ -12,26 +12,42 @@
       margin-top: 10px;
     }
     .badge-reason {
-      font-size: 13px;
+      font-size: 12px;
       padding: 6px 12px;
       border-radius: 20px;
       font-weight: 600;
+      display: inline-block;
+      margin-bottom: 5px;
     }
-    .snapshot-img {
-      width: 60px;
-      height: 60px;
+    .snapshot-card-img {
+      width: 100%;
+      height: 180px;
       object-fit: cover;
       border-radius: 8px;
-      cursor: pointer;
       border: 2px solid #e2e8f0;
+      cursor: pointer;
       transition: transform 0.2s;
     }
-    .snapshot-img:hover {
-      transform: scale(1.1);
+    .snapshot-card-img:hover {
+      transform: scale(1.03);
       border-color: #e53e3e;
+    }
+    .evidence-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
     }
     .table-responsive {
       overflow-x: auto;
+    }
+    .student-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #3182ce;
     }
   </style>
 </head>
@@ -39,43 +55,111 @@
 <div class="container-fluid px-3 my-2">
   <div class="card-box">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 style="font-size: 22px;">🛡️ Anti-Cheating & Proctoring Logs</h2>
-      <span class="badge badge-info p-2" style="font-size: 14px;">Total Logs: {{ logs|length }}</span>
+      <h2 style="font-size: 22px;">🛡️ AI Anti-Cheating & Proctoring Dashboard</h2>
+      <span class="badge badge-danger p-2" style="font-size: 14px;">Flagged Sessions: {{ grouped_logs|length }}</span>
     </div>
 
-    {% if logs %}
+    {% if grouped_logs %}
     <div class="table-responsive">
       <table class="table table-hover align-middle">
         <thead class="thead-dark">
           <tr>
             <th>#</th>
-            <th>Student Name</th>
-            <th>Course</th>
-            <th>Violation Reason</th>
-            <th>Timestamp</th>
-            <th>Captured Evidence</th>
+            <th>Student Info</th>
+            <th>Exam Course</th>
+            <th>Total Violations</th>
+            <th>Latest Timestamp</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {% for log in logs %}
+          {% for group in grouped_logs %}
           <tr>
             <td>{{ forloop.counter }}</td>
-            <td><strong>{{ log.student.get_name }}</strong></td>
-            <td><span class="badge badge-secondary">{{ log.course_name }}</span></td>
             <td>
-              {% if "Tab Switch" in log.reason or "Blur" in log.reason %}
-                <span class="badge badge-danger badge-reason"><i class="fas fa-exclamation-triangle"></i> {{ log.reason }}</span>
-              {% else %}
-                <span class="badge badge-warning badge-reason"><i class="fas fa-eye"></i> {{ log.reason }}</span>
-              {% endif %}
+              <div class="d-flex align-items-center" style="gap: 12px;">
+                {% if group.student.profile_pic %}
+                  <img src="/static/{{ group.student.profile_pic }}" class="student-avatar" alt="Avatar">
+                {% else %}
+                  <img src="{% static 'image/ali_icon.jpg' %}" class="student-avatar" alt="Avatar">
+                {% endif %}
+                <div>
+                  <strong>{{ group.student.get_name }}</strong><br>
+                  <small class="text-muted"><i class="fas fa-phone"></i> {{ group.student.mobile }}</small>
+                </div>
+              </div>
             </td>
-            <td><small class="text-muted"><i class="far fa-clock"></i> {{ log.timestamp|date:"d M Y, h:i A" }}</small></td>
+            <td><span class="badge badge-info" style="font-size: 13px;">{{ group.course_name }}</span></td>
             <td>
-              {% if log.snapshot %}
-                <img src="/static/{{ log.snapshot }}" class="snapshot-img" onclick="alert('Student: {{ log.student.get_name }}\nReason: {{ log.reason }}\nTime: {{ log.timestamp }}'); window.open('/static/{{ log.snapshot }}', '_blank');" alt="Snapshot">
-              {% else %}
-                <span class="text-muted">No Image</span>
-              {% endif %}
+              <span class="badge badge-danger font-weight-bold p-2" style="font-size: 13px;">
+                <i class="fas fa-exclamation-triangle"></i> {{ group.total_flags }} Violation{% if group.total_flags > 1 %}s{% endif %}
+              </span>
+            </td>
+            <td><small class="text-muted"><i class="far fa-clock"></i> {{ group.latest_timestamp|date:"d M Y, h:i A" }}</small></td>
+            <td>
+              <button class="btn btn-primary btn-sm font-weight-bold" data-toggle="modal" data-target="#evidenceModal{{ group.id }}">
+                <i class="fas fa-search"></i> View Evidence & Details ({{ group.total_flags }})
+              </button>
+
+              <!-- Modal for Student Exam Evidence Details -->
+              <div class="modal fade" id="evidenceModal{{ group.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h5 class="modal-title">
+                        <i class="fas fa-user-shield"></i> Cheating Evidence Logs: <strong>{{ group.student.get_name }}</strong> ({{ group.course_name }})
+                      </h5>
+                      <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body bg-light" style="max-height: 75vh; overflow-y: auto;">
+                      <div class="alert alert-warning mb-3">
+                        <strong>Student:</strong> {{ group.student.get_name }} (Mobile: {{ group.student.mobile }})<br>
+                        <strong>Exam:</strong> {{ group.course_name }}<br>
+                        <strong>Total Flagged Events:</strong> {{ group.total_flags }}
+                      </div>
+
+                      <div class="row">
+                        {% for log in group.logs %}
+                        <div class="col-md-6">
+                          <div class="evidence-item">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <small class="text-muted"><i class="far fa-clock"></i> {{ log.timestamp|date:"h:i:s A" }}</small>
+                            </div>
+                            
+                            <div class="mb-2">
+                              {% if "Mobile Phone" in log.reason or "phone" in log.reason %}
+                                <span class="badge badge-danger badge-reason"><i class="fas fa-mobile-alt"></i> {{ log.reason }}</span>
+                              {% elif "Book" in log.reason %}
+                                <span class="badge badge-warning badge-reason"><i class="fas fa-book-open"></i> {{ log.reason }}</span>
+                              {% elif "Multiple" in log.reason %}
+                                <span class="badge badge-danger badge-reason"><i class="fas fa-users"></i> {{ log.reason }}</span>
+                              {% elif "No Face" in log.reason %}
+                                <span class="badge badge-dark badge-reason"><i class="fas fa-user-slash"></i> {{ log.reason }}</span>
+                              {% else %}
+                                <span class="badge badge-danger badge-reason"><i class="fas fa-exclamation-triangle"></i> {{ log.reason }}</span>
+                              {% endif %}
+                            </div>
+
+                            {% if log.snapshot %}
+                              <a href="/static/{{ log.snapshot }}" target="_blank">
+                                <img src="/static/{{ log.snapshot }}" class="snapshot-card-img" alt="Captured Evidence">
+                              </a>
+                            {% else %}
+                              <div class="p-4 bg-secondary text-white text-center rounded">
+                                <i class="fas fa-camera-retro fa-2x mb-2"></i><br>
+                                No Image Captured
+                              </div>
+                            {% endif %}
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
           {% endfor %}
@@ -85,7 +169,7 @@
     {% else %}
     <div class="alert alert-success text-center my-4">
       <h4><i class="fas fa-check-circle"></i> No Proctoring Violations Logged Yet</h4>
-      <p class="mb-0">All exams have been clean so far!</p>
+      <p class="mb-0">All student exams have been clean so far!</p>
     </div>
     {% endif %}
   </div>

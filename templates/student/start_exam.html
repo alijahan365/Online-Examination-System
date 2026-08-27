@@ -10,6 +10,10 @@
   <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+  <!-- TensorFlow.js & COCO-SSD Object Detection AI Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
   <style>
     body {
       background-color: #f4f6f9;
@@ -124,7 +128,6 @@
       box-shadow: 0 2px 8px rgba(229,62,62,0.1);
     }
 
-    /* Question Cards UI */
     .question-card {
       background: #ffffff;
       border-radius: 12px;
@@ -132,7 +135,6 @@
       margin-bottom: 25px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.06);
       border-left: 5px solid #3182ce;
-      transition: transform 0.2s ease;
     }
 
     .question-title {
@@ -153,7 +155,6 @@
       float: right;
     }
 
-    /* Modern Option Boxes */
     .option-box {
       display: flex;
       align-items: center;
@@ -165,7 +166,6 @@
       margin-bottom: 12px;
       cursor: pointer;
       transition: all 0.2s ease;
-      position: relative;
     }
 
     .option-box:hover {
@@ -207,7 +207,6 @@
       background: linear-gradient(135deg, #2f855a 0%, #22543d 100%);
       color: white;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(56,161,105,0.4);
     }
   </style>
 </head>
@@ -227,7 +226,7 @@
 <!-- Floating Proctoring Widget -->
 <div class="proctor-widget" id="proctorWidget" style="display: none;">
   <video id="webcamVideo" class="proctor-video" autoplay playsinline muted></video>
-  <div class="proctor-status">
+  <div class="proctor-status" id="proctorStatusText">
     <span class="pulse-dot"></span> AI Proctoring Active
   </div>
 </div>
@@ -248,7 +247,7 @@
 
   <!-- Warning Banner -->
   <div class="warning-banner">
-    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT PROCTORING RULES:</strong> Do NOT switch browser tabs or minimize window! Doing so will immediately capture evidence snapshot and <strong>AUTO-SUBMIT</strong> your exam.
+    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT AI PROCTORING RULES:</strong> Mobile phones, books/notes, multiple persons, tab switching, or leaving window view are strictly monitored. Violations will be logged with evidence snapshots!
   </div>
 
   <form id="examForm" class="form" autocomplete="off" onsubmit="return saveAns()" action="/student/calculate-marks" method="POST">
@@ -292,6 +291,8 @@
 <script>
   let videoStream = null;
   let isAutoSubmitting = false;
+  let cocoModel = null;
+  let lastViolationTime = 0;
   const courseId = "{{ course.id }}";
 
   // Initialize Camera
@@ -305,9 +306,70 @@
       
       document.getElementById('cameraLockOverlay').style.display = 'none';
       document.getElementById('proctorWidget').style.display = 'block';
+
+      // Load AI Vision Object Detection Model
+      loadAiModel();
     } catch (err) {
       alert('Camera access is required to take this exam. Please grant camera permission.');
       console.error('Camera Access Error:', err);
+    }
+  }
+
+  // Load COCO-SSD Object Detection AI Engine
+  async function loadAiModel() {
+    try {
+      if (typeof cocoSsd !== 'undefined') {
+        cocoModel = await cocoSsd.load();
+        document.getElementById('proctorStatusText').innerHTML = '<span class="pulse-dot"></span> AI Object Detection Active';
+        setInterval(detectCheatingObjects, 2500);
+      }
+    } catch (e) {
+      console.error('AI Vision Load Failed:', e);
+    }
+  }
+
+  // Real-time AI Object / Face Detection
+  async function detectCheatingObjects() {
+    if (!cocoModel || isAutoSubmitting) return;
+    const videoElem = document.getElementById('webcamVideo');
+    if (videoElem && videoElem.readyState === videoElem.HAVE_ENOUGH_DATA) {
+      try {
+        const predictions = await cocoModel.detect(videoElem);
+        let personCount = 0;
+        let phoneFound = false;
+        let bookFound = false;
+
+        predictions.forEach(pred => {
+          if (pred.class === 'person' && pred.score > 0.45) {
+            personCount++;
+          }
+          if ((pred.class === 'cell phone' || pred.class === 'phone') && pred.score > 0.35) {
+            phoneFound = true;
+          }
+          if ((pred.class === 'book' || pred.class === 'notebook') && pred.score > 0.35) {
+            bookFound = true;
+          }
+        });
+
+        const now = Date.now();
+        if (now - lastViolationTime > 6000) {
+          if (phoneFound) {
+            lastViolationTime = now;
+            logCheatingEvent('📱 Mobile Phone Detected in Camera View', false);
+          } else if (bookFound) {
+            lastViolationTime = now;
+            logCheatingEvent('📚 Book / Notes Detected in Camera View', false);
+          } else if (personCount > 1) {
+            lastViolationTime = now;
+            logCheatingEvent('👥 Multiple Persons / Faces Detected (' + personCount + ' People)', false);
+          } else if (personCount === 0) {
+            lastViolationTime = now;
+            logCheatingEvent('🚫 No Face / Person Detected in Camera Frame', false);
+          }
+        }
+      } catch (err) {
+        console.error('Detection Error:', err);
+      }
     }
   }
 
@@ -353,13 +415,13 @@
   // Detect Tab Switching & Window Blur
   document.addEventListener('visibilitychange', function () {
     if (document.hidden && !isAutoSubmitting) {
-      logCheatingEvent('Tab Switch Detected', true);
+      logCheatingEvent('⚠️ Tab Switch Detected', true);
     }
   });
 
   window.addEventListener('blur', function () {
     if (!isAutoSubmitting) {
-      logCheatingEvent('Window Blur / Focus Lost', true);
+      logCheatingEvent('⚠️ Window Blur / Focus Lost', true);
     }
   });
 
