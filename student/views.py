@@ -181,24 +181,17 @@ def log_cheating_event_view(request):
 def proctoring_logs_view(request):
     logs = models.CheatingLog.objects.all().order_by('-timestamp')
     
-    base_template = 'exam/adminbase.html'
-    
-    try:
-        if hasattr(request.user, 'student') and request.user.student:
-            base_template = 'student/studentbase.html'
-    except Exception:
-        pass
-
-    try:
-        if hasattr(request.user, 'teacher') and request.user.teacher:
-            base_template = 'teacher/teacherbase.html'
-    except Exception:
-        pass
-
     if request.user.is_superuser or request.user.is_staff:
+        base_template = 'exam/adminbase.html'
+    elif TMODEL.Teacher.objects.filter(user=request.user).exists():
+        base_template = 'teacher/teacherbase.html'
+    elif models.Student.objects.filter(user=request.user).exists():
+        base_template = 'student/studentbase.html'
+    else:
         base_template = 'exam/adminbase.html'
 
     return render(request, 'student/proctoring_logs.html', {'logs': logs, 'base_template': base_template})
+
 
 
 
