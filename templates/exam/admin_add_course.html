@@ -1,51 +1,67 @@
 {% extends 'exam/adminbase.html' %}
 {% load widget_tweaks %}
 {% block content %}
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <style>
+    .form-card {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+  </style>
 </head>
 
-<h2 style="text-align:center;">Add New Examination Course</h2>
-<form method="POST" autocomplete="off" style="max-width: 600px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-  {% csrf_token %}
-  <div class="form-group">
-    <label for="course_name">Course Name</label>
-    {% render_field courseForm.course_name class="form-control" placeholder="Example: Software Engineering" required="true" %}
+<div class="container-fluid">
+  <div class="form-card">
+    <h3 class="text-center mb-4" style="font-weight: 700; color: #1e293b;">
+      <i class="fas fa-plus-circle text-primary"></i> Add New Course & Live Schedule
+    </h3>
+
+    <form method="POST" autocomplete="off">
+      {% csrf_token %}
+      
+      <div class="form-group mb-3">
+        <label><strong>Course Name</strong></label>
+        {% render_field courseForm.course_name class="form-control" placeholder="Example: Databases & SQL" required="true" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Total Questions</strong></label>
+        {% render_field courseForm.question_number class="form-control" placeholder="Example: 10" required="true" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Total Marks</strong></label>
+        {% render_field courseForm.total_marks class="form-control" placeholder="Example: 100" required="true" %}
+      </div>
+
+      <hr>
+      <h5 class="text-primary font-weight-bold mb-3"><i class="fas fa-calendar-alt"></i> Live Exam Scheduling (Optional)</h5>
+
+      <div class="form-group mb-3">
+        <label><strong>Exam Start Time</strong></label>
+        {% render_field courseForm.start_time class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Exam End Time</strong></label>
+        {% render_field courseForm.end_time class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Result Publication Time</strong></label>
+        {% render_field courseForm.result_publish_time class="form-control" %}
+      </div>
+
+      <button type="submit" class="btn btn-success btn-block btn-lg" style="border-radius: 8px; font-weight: bold;">
+        <i class="fas fa-check"></i> Save Course & Schedule
+      </button>
+      <a href="{% url 'admin-view-course' %}" class="btn btn-secondary btn-block mt-2" style="border-radius: 8px;">Cancel</a>
+    </form>
   </div>
-
-  <div class="form-group">
-    <label for="question_number">Total Questions</label>
-    {% render_field courseForm.question_number class="form-control" placeholder="Example: 50" required="true" %}
-  </div>
-
-  <div class="form-group">
-    <label for="total_marks">Total Marks</label>
-    {% render_field courseForm.total_marks class="form-control" placeholder="Example: 100" required="true" %}
-  </div>
-
-  <hr>
-  <h4 class="text-primary">📅 Live Exam Scheduling (Optional)</h4>
-
-  <div class="form-group">
-    <label for="start_time">Exam Start Time</label>
-    {% render_field courseForm.start_time class="form-control" %}
-  </div>
-
-  <div class="form-group">
-    <label for="end_time">Exam End Time</label>
-    {% render_field courseForm.end_time class="form-control" %}
-  </div>
-
-  <div class="form-group">
-    <label for="result_publish_time">Result Publication Time</label>
-    {% render_field courseForm.result_publish_time class="form-control" %}
-  </div>
-
-  <button type="submit" class="btn btn-success btn-block" style="border-radius:0px; font-weight: bold; padding: 10px;">
-    <i class="glyphicon glyphicon-plus"></i> Save Course & Schedule
-  </button>
-</form>
-
-<br><br><br>
+</div>
 {% endblock content %}

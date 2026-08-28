@@ -1,55 +1,79 @@
 {% extends 'teacher/teacherbase.html' %}
 {% load widget_tweaks %}
 {% block content %}
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <style>
+    .form-card {
+      max-width: 650px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+  </style>
 </head>
 
-<h2 style="text-align:center;">Add Question to Course</h2>
-<form method="POST" autocomplete="off" style="max-width: 700px; margin: 20px auto; padding: 25px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="question">Course</label>
-      {% render_field questionForm.courseID|attr:'required:true' class="form-control" %}
-      
-      <br>
-      <label for="question">Question Text</label>
-      {% render_field questionForm.question|attr:'required:true' class="form-control" placeholder="Example: What is relational calculus?" %}
-      
-      <br>
-      <label for="question_number">Marks</label>
-      {% render_field questionForm.marks|attr:'required:true' class="form-control" placeholder="Example: 5" %}
-      
-      <br>
-      <label for="option1">Option 1</label>
-      {% render_field questionForm.option1|attr:'required:true' class="form-control" placeholder="Example: It is a kind of procedural language" %}
-      
-      <br>
-      <label for="option2">Option 2</label>
-      {% render_field questionForm.option2|attr:'required:true' class="form-control" placeholder="Example: It is a non-procedural language" %}
-      
-      <br>
-      <label for="option3">Option 3</label>
-      {% render_field questionForm.option3|attr:'required:true' class="form-control" placeholder="Example: It is a high-level language" %}
-      
-      <br>
-      <label for="option4">Option 4</label>
-      {% render_field questionForm.option4|attr:'required:true' class="form-control" placeholder="Example: It is Data Definition language" %}
-      
-      <br>
-      <label for="answer">Correct Answer</label>
-      {% render_field questionForm.answer|attr:'required:true' class="form-control" %}
+<div class="container-fluid">
+  <div class="form-card">
+    <h3 class="text-center mb-4" style="font-weight: 700; color: #1e293b;">
+      <i class="fas fa-plus-circle text-primary"></i> Add Question to Course
+    </h3>
 
-      <br>
-      <label for="explanation" class="text-primary">💡 Explanation / Reason (2-3 Lines)</label>
-      {% render_field questionForm.explanation class="form-control" placeholder="Explain in 2-3 lines why this answer is correct..." rows="3" %}
-    </div>
-    
-    <button type="submit" class="btn btn-success btn-block" style="border-radius:0px; font-weight: bold; padding: 10px;">
-      <i class="glyphicon glyphicon-plus"></i> Save Question & Explanation
-    </button>
-  </form>
+    <form method="POST" autocomplete="off">
+      {% csrf_token %}
 
-<br><br><br>
+      <div class="form-group mb-3">
+        <label><strong>Select Course</strong></label>
+        {% render_field questionForm.courseID|attr:'required:true' class="form-control" %}
+      </div>
+      
+      <div class="form-group mb-3">
+        <label><strong>Question Text</strong></label>
+        {% render_field questionForm.question|attr:'required:true' class="form-control" rows="3" placeholder="Enter question text..." %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Marks</strong></label>
+        {% render_field questionForm.marks|attr:'required:true' class="form-control" placeholder="Example: 5" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 1</strong></label>
+        {% render_field questionForm.option1|attr:'required:true' class="form-control" placeholder="Option 1" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 2</strong></label>
+        {% render_field questionForm.option2|attr:'required:true' class="form-control" placeholder="Option 2" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 3</strong></label>
+        {% render_field questionForm.option3|attr:'required:true' class="form-control" placeholder="Option 3" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 4</strong></label>
+        {% render_field questionForm.option4|attr:'required:true' class="form-control" placeholder="Option 4" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Correct Answer</strong></label>
+        {% render_field questionForm.answer|attr:'required:true' class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong class="text-primary"><i class="fas fa-lightbulb"></i> Explanation / Reason (2-3 lines)</strong></label>
+        {% render_field questionForm.explanation class="form-control" rows="2" placeholder="Explain in 2-3 lines why this option is correct..." %}
+      </div>
+
+      <button type="submit" class="btn btn-success btn-block btn-lg" style="border-radius: 8px; font-weight: bold;">
+        <i class="fas fa-check"></i> Save Question & Explanation
+      </button>
+      <a href="{% url 'teacher-view-question' %}" class="btn btn-secondary btn-block mt-2" style="border-radius: 8px;">Cancel</a>
+    </form>
+  </div>
+</div>
 {% endblock content %}
