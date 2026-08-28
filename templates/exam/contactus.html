@@ -7,14 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us | Online Exam System</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
   <style>
-    body {
-      background-color: #f8f9fa;
-      padding-top: 80px;
-    }
     .contact-card {
       background: #ffffff;
       border-radius: 12px;
@@ -48,47 +41,49 @@
 
   {% include "exam/navbar.html" %}
 
-  <div class="container">
-    <div class="contact-card">
-      <div class="text-center mb-4">
-        <h2 style="color: #212529; font-weight: 700;"><i class="fas fa-envelope-open-text text-primary"></i> Contact Us</h2>
-        <p class="text-muted">Send a message to our Administration or an Instructor.</p>
+  <div class="public-page-wrapper">
+    <div class="container my-auto">
+      <div class="contact-card">
+        <div class="text-center mb-4">
+          <h2 style="color: #212529; font-weight: 700;"><i class="fas fa-envelope-open-text text-primary"></i> Contact Us</h2>
+          <p class="text-muted">Send a message to our Administration or an Instructor.</p>
+        </div>
+
+        <form method="POST" autocomplete="off">
+          {% csrf_token %}
+          
+          <div class="form-group mb-3">
+            <label for="id_Name" class="font-weight-bold">Name</label>
+            {% render_field form.Name class="form-control" placeholder="Enter your full name" required="true" %}
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="id_Email" class="font-weight-bold">Email Address</label>
+            {% render_field form.Email class="form-control" placeholder="Enter your email address" required="true" %}
+          </div>
+
+          <div class="form-group mb-3">
+            <label for="recipient_type_select" class="font-weight-bold">Send Message To</label>
+            {% render_field form.recipient_type class="form-control" id="recipient_type_select" onchange="toggleTeacherSelect()" %}
+          </div>
+
+          <div class="form-group mb-3" id="teacher_wrapper" style="display: none;">
+            <label for="teacher_select" class="font-weight-bold">Select Teacher / Instructor</label>
+            {% render_field form.teacher class="form-control" id="teacher_select" %}
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="id_Message" class="font-weight-bold">Message</label>
+            {% render_field form.Message class="form-control" placeholder="Write your message here..." rows="4" required="true" %}
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-block btn-submit">
+              <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form method="POST" autocomplete="off">
-        {% csrf_token %}
-        
-        <div class="form-group mb-3">
-          <label for="id_Name" class="font-weight-bold">Name</label>
-          {% render_field form.Name class="form-control" placeholder="Enter your full name" required="true" %}
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="id_Email" class="font-weight-bold">Email Address</label>
-          {% render_field form.Email class="form-control" placeholder="Enter your email address" required="true" %}
-        </div>
-
-        <div class="form-group mb-3">
-          <label for="recipient_type_select" class="font-weight-bold">Send Message To</label>
-          {% render_field form.recipient_type class="form-control" id="recipient_type_select" onchange="toggleTeacherSelect()" %}
-        </div>
-
-        <div class="form-group mb-3" id="teacher_wrapper" style="display: none;">
-          <label for="teacher_select" class="font-weight-bold">Select Teacher / Instructor</label>
-          {% render_field form.teacher class="form-control" id="teacher_select" %}
-        </div>
-
-        <div class="form-group mb-4">
-          <label for="id_Message" class="font-weight-bold">Message</label>
-          {% render_field form.Message class="form-control" placeholder="Write your message here..." rows="4" required="true" %}
-        </div>
-
-        <div class="text-center">
-          <button type="submit" class="btn btn-primary btn-block btn-submit">
-            <i class="fas fa-paper-plane"></i> Send Message
-          </button>
-        </div>
-      </form>
     </div>
   </div>
 

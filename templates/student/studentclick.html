@@ -5,38 +5,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <style media="screen">
-    .jumbotron {
-      margin-top: 0px;
-      margin-bottom: 0px;
-    }
-
-    .jumbotron h1 {
-      text-align: center;
-    }
-
-  </style>
-
+  <title>Student Portal - Online Exam System</title>
 </head>
 
 <body>
-
   {% include "exam/navbar.html" %}
-  <br><br>
-  <div class="jumbotron" style="margin-bottom:0px;">
-    <h1 class="display-4">Hello Student,</h1>
-    <p class="lead">and Welcome to Online Examination System</p>
-    <hr class="my-4">
-    <p>Select any of them to access into the system</p>
-    <p class="lead">
-      <a class="btn btn-primary " href="studentsignup" style="border-radius: 0%;" role="button">Create Your Account</a>
-      <a class="btn btn-success " href="studentlogin" style="border-radius: 0%;" role="button">Login Now</a>
-    </p>
-    <br><br><br><br><br><br>
+
+  <div class="public-page-wrapper">
+    <div class="container my-auto py-5">
+      <div class="jumbotron text-center shadow-lg" style="background: #ffffff; border-radius: 16px; border-top: 5px solid #10b981; padding: 40px 20px;">
+        <h1 class="display-4" style="font-weight: 800; color: #0f172a;">Hello Student,</h1>
+        <p class="lead text-muted" style="font-size: 18px;">Welcome to Online Examination System Portal</p>
+        <hr class="my-4" style="max-width: 200px; border-top: 2px solid #10b981;">
+        <p style="font-size: 16px; color: #475569;">Select an option below to enter your portal</p>
+        <div class="d-flex justify-content-center" style="gap: 15px; flex-wrap: wrap;">
+          <a class="btn btn-primary btn-lg px-4 py-3" style="border-radius: 30px; font-weight: bold;" href="studentsignup" role="button">
+            <i class="fas fa-user-plus"></i> Create Student Account
+          </a>
+          <a class="btn btn-success btn-lg px-4 py-3" style="border-radius: 30px; font-weight: bold;" href="studentlogin" role="button">
+            <i class="fas fa-sign-in-alt"></i> Student Login
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
- 
+
   {% include "exam/footer.html" %}
 </body>
-
 </html>

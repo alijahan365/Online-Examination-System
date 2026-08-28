@@ -1,0 +1,79 @@
+{% extends 'exam/adminbase.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<head>
+  <style>
+    .form-card {
+      max-width: 650px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+  </style>
+</head>
+
+<div class="container-fluid">
+  <div class="form-card">
+    <h3 class="text-center mb-4" style="font-weight: 700; color: #1e293b;">
+      <i class="fas fa-edit text-primary"></i> Edit Question
+    </h3>
+
+    <form method="POST" autocomplete="off">
+      {% csrf_token %}
+
+      <div class="form-group mb-3">
+        <label><strong>Course</strong></label>
+        {% render_field questionForm.courseID class="form-control" %}
+      </div>
+      
+      <div class="form-group mb-3">
+        <label><strong>Question Text</strong></label>
+        {% render_field questionForm.question class="form-control" rows="3" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Marks</strong></label>
+        {% render_field questionForm.marks class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 1</strong></label>
+        {% render_field questionForm.option1 class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 2</strong></label>
+        {% render_field questionForm.option2 class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 3</strong></label>
+        {% render_field questionForm.option3 class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Option 4</strong></label>
+        {% render_field questionForm.option4 class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Correct Answer</strong></label>
+        {% render_field questionForm.answer class="form-control" %}
+      </div>
+
+      <div class="form-group mb-3">
+        <label><strong>Explanation / Reason (2-3 lines)</strong></label>
+        {% render_field questionForm.explanation class="form-control" rows="2" %}
+      </div>
+
+      <button type="submit" class="btn btn-success btn-block btn-lg" style="border-radius: 8px; font-weight: bold;">
+        <i class="fas fa-save"></i> Save Question Changes
+      </button>
+      <a href="{% url 'admin-view-question' %}" class="btn btn-secondary btn-block mt-2" style="border-radius: 8px;">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock content %}

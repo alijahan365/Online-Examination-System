@@ -2,53 +2,59 @@
 {% load static %}
 <html lang="en" dir="ltr">
 
-<style>
-  .jumbotron {
-    margin-bottom: 0px;
-  }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Examination System</title>
+  <style>
+    .hero-section {
+      background-image: url("{% static 'image/daffo.jpg' %}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: calc(100vh - 120px);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  #section-jumbotron {
-    background-image: url("{% static 'image/daffo.jpg' %}"); /* Add your image path */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-    position: relative; /* Needed for the overlay to position correctly */
-  }
+    .hero-section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.7);
+      z-index: 1;
+    }
 
-  /* Semi-transparent overlay */
-  #section-jumbotron::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Black overlay with 50% opacity */
-    z-index: 1; /* Ensures the overlay is behind the text */
-  }
-
-  .container {
-    position: relative;
-    z-index: 2; /* Ensures the text appears above the overlay */
-    color: white; /* Makes the text white for better visibility */
-  }
-</style>
+    .hero-container {
+      position: relative;
+      z-index: 2;
+      color: white;
+    }
+  </style>
+</head>
 
 <body>
   {% include "exam/navbar.html" %}
-  <br>
-  <section id="section-jumbotron" class="jumbotron jumbotron-fluid d-flex justify-content-center align-items-center">
-    <div class="container text-center">
-      <h2 class="display-3 text-info">Online Examination System</h2>
-      <p class="display-4 d-none d-sm-block">Attend your examinations online!</p>
-      <p class="lead">Sign Up now to start your first online examination</p>
 
-      <p><strong>Start Your Journey Here:</strong></p>
-      <a href="/student/studentsignup" class="btn btn-lg btn-info" style="padding-right: 35px; border-radius: 0%;"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Sign Up as Student</a>
-      <br><br><br>
+  <div class="public-page-wrapper">
+    <div class="hero-section">
+      <div class="hero-container text-center px-3 py-5">
+        <h1 class="display-3 text-info" style="font-weight: 800;">Online Examination System</h1>
+        <p class="display-4 d-none d-sm-block text-light" style="font-size: 28px;">Attend your examinations online with AI Anti-Cheating Proctoring</p>
+        <p class="lead text-light mb-4">Sign Up now to start your first online examination</p>
+
+        <a href="/student/studentsignup" class="btn btn-lg btn-info px-4 py-3" style="border-radius: 30px; font-weight: bold;">
+          <i class="fa fa-graduation-cap" aria-hidden="true"></i> Sign Up as Student
+        </a>
+      </div>
     </div>
-  </section>
+  </div>
+
   {% include "exam/footer.html" %}
 </body>
 

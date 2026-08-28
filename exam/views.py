@@ -219,9 +219,23 @@ def admin_view_course_view(request):
     return render(request,'exam/admin_view_course.html',{'courses':courses})
 
 @login_required(login_url='adminlogin')
+def update_course_view(request, pk):
+    course = models.Course.objects.get(id=pk)
+    courseForm = forms.CourseForm(instance=course)
+    if request.method == 'POST':
+        courseForm = forms.CourseForm(request.POST, instance=course)
+        if courseForm.is_valid():
+            courseForm.save()
+            return redirect('admin-view-course')
+    return render(request, 'exam/update_course.html', {'courseForm': courseForm, 'course': course})
+
+@login_required(login_url='adminlogin')
 def delete_course_view(request,pk):
-    course=models.Course.objects.get(id=pk)
-    course.delete()
+    try:
+        course=models.Course.objects.get(id=pk)
+        course.delete()
+    except Exception:
+        pass
     return HttpResponseRedirect('/admin-view-course')
 
 
@@ -255,13 +269,33 @@ def admin_view_question_view(request):
 @login_required(login_url='adminlogin')
 def view_question_view(request,pk):
     questions=models.Question.objects.all().filter(course_id=pk)
-    return render(request,'exam/view_question.html',{'questions':questions})
+    return render(request,'exam/view_question.html',{'questions':questions, 'course_id': pk})
+
+@login_required(login_url='adminlogin')
+def update_question_view(request, pk):
+    question = models.Question.objects.get(id=pk)
+    questionForm = forms.QuestionForm(instance=question)
+    if request.method == 'POST':
+        questionForm = forms.QuestionForm(request.POST, instance=question)
+        if questionForm.is_valid():
+            q = questionForm.save(commit=False)
+            if request.POST.get('courseID'):
+                c = models.Course.objects.get(id=request.POST.get('courseID'))
+                q.course = c
+            q.save()
+            return redirect('view-question', pk=q.course.id)
+    return render(request, 'exam/update_question.html', {'questionForm': questionForm, 'question': question})
 
 @login_required(login_url='adminlogin')
 def delete_question_view(request,pk):
-    question=models.Question.objects.get(id=pk)
-    question.delete()
-    return HttpResponseRedirect('/admin-view-question')
+    try:
+        question=models.Question.objects.get(id=pk)
+        c_id = question.course.id
+        question.delete()
+        return redirect('view-question', pk=c_id)
+    except Exception:
+        return HttpResponseRedirect('/admin-view-question')
+
 
 @login_required(login_url='adminlogin')
 def admin_view_student_marks_view(request):
