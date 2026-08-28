@@ -323,21 +323,37 @@ def contactus_view(request):
 
 def get_grouped_proctoring_logs():
     all_logs = SMODEL.CheatingLog.objects.all().order_by('-timestamp')
-    grouped_dict = {}
+    students_dict = {}
+
     for log in all_logs:
-        key = (log.student.id, log.course_name)
-        if key not in grouped_dict:
-            grouped_dict[key] = {
-                'id': f"{log.student.id}_{abs(hash(log.course_name))}",
+        student_id = log.student.id
+        if student_id not in students_dict:
+            students_dict[student_id] = {
                 'student': log.student,
-                'course_name': log.course_name,
-                'total_flags': 0,
+                'total_violations': 0,
+                'courses': {}
+            }
+        
+        students_dict[student_id]['total_violations'] += 1
+        
+        course_name = log.course_name
+        if course_name not in students_dict[student_id]['courses']:
+            students_dict[student_id]['courses'][course_name] = {
+                'course_name': course_name,
                 'latest_timestamp': log.timestamp,
+                'total_flags': 0,
                 'logs': []
             }
-        grouped_dict[key]['total_flags'] += 1
-        grouped_dict[key]['logs'].append(log)
-    return list(grouped_dict.values())
+        
+        students_dict[student_id]['courses'][course_name]['total_flags'] += 1
+        students_dict[student_id]['courses'][course_name]['logs'].append(log)
+
+    result = []
+    for st_id, st_data in students_dict.items():
+        st_data['courses_list'] = list(st_data['courses'].values())
+        result.append(st_data)
+
+    return result
 
 @login_required(login_url='adminlogin')
 def admin_contact_messages_view(request):

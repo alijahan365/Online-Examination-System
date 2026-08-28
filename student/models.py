@@ -11,10 +11,13 @@ class Student(models.Model):
     def get_name(self):
         return self.user.first_name+" "+self.user.last_name
     @property
+    def student_id(self):
+        return f"STD-{self.id:04d}"
+    @property
     def get_instance(self):
         return self
     def __str__(self):
-        return self.user.first_name
+        return f"{self.student_id} - {self.user.first_name}"
 
 class CheatingLog(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

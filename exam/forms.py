@@ -19,6 +19,10 @@ class ContactusForm(forms.Form):
     )
     Message = forms.CharField(max_length=500, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
 
+    def __init__(self, *args, **kwargs):
+        super(ContactusForm, self).__init__(*args, **kwargs)
+        self.fields['teacher'].queryset = Teacher.objects.filter(status=True)
+
 class TeacherSalaryForm(forms.Form):
     salary = forms.IntegerField()
 
@@ -34,6 +38,11 @@ class CourseForm(forms.ModelForm):
 
 class QuestionForm(forms.ModelForm):
     courseID = forms.ModelChoiceField(queryset=models.Course.objects.all(), empty_label="Course Name", to_field_name="id")
+    
+    def __init__(self, *args, **kwargs):
+        super(QuestionForm, self).__init__(*args, **kwargs)
+        self.fields['courseID'].queryset = models.Course.objects.all()
+
     class Meta:
         model = models.Question
         fields = ['marks', 'question', 'option1', 'option2', 'option3', 'option4', 'answer', 'explanation']
@@ -41,4 +50,5 @@ class QuestionForm(forms.ModelForm):
             'question': forms.Textarea(attrs={'rows': 3, 'cols': 50}),
             'explanation': forms.Textarea(attrs={'rows': 2, 'cols': 50, 'placeholder': '2-3 line explanation of the correct answer'})
         }
+
 

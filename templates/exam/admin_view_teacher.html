@@ -1,64 +1,69 @@
 {% extends 'exam/adminbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
 <head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-
-  <style media="screen">
-    a:link {
-      text-decoration: none;
+  <style>
+    .card-box {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
     }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
+    .teacher-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e2e8f0;
     }
   </style>
 </head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">Teachers</h6>
+
+<div class="container-fluid px-3">
+  <div class="card-box">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 15px;">
+      <h3 class="m-0" style="font-weight: 700; color: #1e293b;"><i class="fas fa-chalkboard-teacher text-info"></i> Approved Teachers List</h3>
+      <span class="badge badge-info p-2" style="font-size: 14px;">Total Teachers: {{ teachers|length }}</span>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
-        <tr>
 
-          <th>Name</th>
-          <th>Photo</th>
-          <th>Contact</th>
-          <th>Address</th>
-         
-          <th>Action</th>
-        </tr>
-      </thead>
-      {% for t in teachers %}
-      <tr>
-
-        <td>
-          {% if t.profile_pic %}
-            <img src="/static/{{ t.profile_pic }}" alt="Profile Pic" height="40px" width="40px" style="border-radius: 50%; object-fit: cover;" />
-          {% else %}
-            <img src="{% static 'image/teacher_icon.jfif' %}" alt="Profile Pic" height="40px" width="40px" style="border-radius: 50%; object-fit: cover;" />
-          {% endif %}
-        </td>
-        <td>{{t.mobile}}</td>
-        <td>{{t.address}}</td>
-        
-        <td><a class="btn btn-success btn-xs" style="border-radius: 0%;" href="{% url 'update-teacher' t.id  %}"><span class="glyphicon glyphicon-edit"></span></a>
-        <a class="btn btn-danger btn-xs" style="border-radius: 0%;" href="{% url 'delete-teacher' t.id  %}"><span class="glyphicon glyphicon-trash"></span></a></td>
-      </tr>
-      {% endfor %}
-    </table>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="thead-dark">
+          <tr>
+            <th>Name</th>
+            <th>Photo</th>
+            <th>Contact</th>
+            <th>Address</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in teachers %}
+          <tr>
+            <td><strong style="font-size: 15px; color: #1e293b;">{{ t.get_name }}</strong></td>
+            <td>
+              {% if t.profile_pic %}
+                <img src="/static/{{ t.profile_pic }}" class="teacher-avatar" alt="Profile Pic" />
+              {% else %}
+                <img src="{% static 'image/teacher_icon.jfif' %}" class="teacher-avatar" alt="Profile Pic" />
+              {% endif %}
+            </td>
+            <td><i class="fas fa-phone-alt text-muted"></i> {{ t.mobile }}</td>
+            <td><i class="fas fa-map-marker-alt text-muted"></i> {{ t.address }}</td>
+            <td>
+              <a class="btn btn-success btn-sm" style="border-radius: 4px;" href="{% url 'update-teacher' t.id %}" title="Edit Teacher"><i class="fas fa-edit"></i></a>
+              <a class="btn btn-danger btn-sm" style="border-radius: 4px;" href="{% url 'delete-teacher' t.id %}" title="Delete Teacher" onclick="return confirm('Are you sure you want to delete this teacher?');"><i class="fas fa-trash"></i></a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">No approved teachers found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
-
-<br><br><br><br><br><br>
 {% endblock content %}

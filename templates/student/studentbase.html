@@ -5,145 +5,174 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal - Online Exam System</title>
 
   <style media="screen">
     a:link {
       text-decoration: none;
     }
 
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
-      font-family: "Gill Sans", sans-serif;;
+      font-family: "Poppins", "Segoe UI", sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     header {
       position: fixed;
-      background: #22242A;
-      padding: 20px;
+      top: 0;
+      left: 0;
+      background: #1e293b;
+      padding: 15px 25px;
       width: 100%;
-      z-index: 1;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      box-sizing: border-box;
     }
 
     .left_area h3 {
       color: #fff;
-      margin: 0px;
+      margin: 0;
       text-transform: uppercase;
-      font-size: 22px;
-      font-weight: 900;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
     }
 
     .left_area span {
-      color: #19B3D3;
+      color: #38bdf8;
     }
 
     .logout_btn {
-      padding: 5px;
-      background: #ef5350;
-      text-decoration: none;
-      float: right;
-      margin-top: -30px;
-      margin-right: 40px;
-      border-radius: 2px;
-      font-size: 15px;
+      padding: 6px 16px;
+      background: #ef4444;
+      border-radius: 6px;
+      font-size: 14px;
       font-weight: 600;
       color: #fff;
-      transition: 0.5s;
-
+      transition: all 0.3s ease;
+      text-decoration: none;
     }
 
     .logout_btn:hover {
-      background: #c04240;
+      background: #dc2626;
+      color: #fff;
     }
 
     .sidebar {
-      background: #2f323a;
-      margin-top: 70px;
-      padding-top: 30px;
+      background: #0f172a;
+      margin-top: 60px;
+      padding-top: 20px;
       position: fixed;
       left: 0;
+      top: 0;
       width: 250px;
-      height: 100%;
-      transition: 0.5s;
-      transition-property: left;
-      z-index: 100;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+      transition: all 0.3s ease;
+      z-index: 999;
     }
 
     .sidebar .profile_image {
-      width: 100px;
-      height: 100px;
-      border-radius: 100px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
       margin-bottom: 10px;
+      border: 3px solid #38bdf8;
+      object-fit: cover;
     }
 
     .sidebar h4 {
-      color: #ccc;
+      color: #f1f5f9;
       margin-top: 0;
-      
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .student-id-badge {
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 10px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 15px;
     }
 
     .sidebar a {
-      color: #fff;
-      display: block;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
       width: 100%;
-      line-height: 60px;
+      padding: 14px 25px;
       text-decoration: none;
-      padding-left: 40px;
       box-sizing: border-box;
-      transition: 0.5s;
-
+      transition: all 0.3s ease;
+      font-size: 14px;
     }
 
     .sidebar a:hover {
-      background: #969696;
-      color: white;
+      background: #1e293b;
+      color: #38bdf8;
+      padding-left: 30px;
     }
 
     .sidebar i {
-      padding-right: 10px;
+      padding-right: 12px;
+      width: 20px;
+      text-align: center;
     }
 
     label #sidebar_btn {
-      z-index: 1;
       color: #fff;
-      position: fixed;
       cursor: pointer;
-      left: 300px;
       font-size: 20px;
-      margin: 5px 0;
-      transition: 0.5s;
-      transition-property: color;
+      margin-right: 15px;
+      transition: color 0.3s ease;
     }
 
     label #sidebar_btn:hover {
-      color: #6b6b6b;
+      color: #38bdf8;
     }
 
-    #check:checked~.sidebar {
-      left: -190px;
+    #check:checked ~ .sidebar {
+      left: -250px;
     }
 
-    #check:checked~.sidebar a span {
-      display: none;
-    }
-
-    #check:checked~.sidebar a {
-      font-size: 20px;
-      margin-left: 170px;
-      width: 80px;
+    .main-body-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
     }
 
     .content {
       margin-left: 250px;
-      background: url(background.png) no-repeat;
-      background-position: center;
-      background-size: cover;
-      height: 100vh;
-      transition: 0.5s;
+      padding: 85px 25px 30px 25px;
+      flex: 1 0 auto;
+      transition: all 0.3s ease;
     }
 
-    #check:checked~.content {
-      margin-left: 60px;
+    .custom-site-footer {
+      margin-left: 250px;
+      transition: all 0.3s ease;
+    }
+
+    #check:checked ~ .main-body-container .content,
+    #check:checked ~ .main-body-container .custom-site-footer {
+      margin-left: 0;
     }
 
     #check {
@@ -153,68 +182,57 @@
     @media screen and (max-width: 768px) {
       .sidebar {
         left: -250px;
-        z-index: 10000;
       }
-      #check:checked~.sidebar {
+      #check:checked ~ .sidebar {
         left: 0;
+        width: 240px;
       }
-      #check:checked~.sidebar a span {
-        display: inline;
-      }
-      #check:checked~.sidebar a {
-        font-size: 15px;
-        margin-left: 0;
-        width: 100%;
-      }
-      .content {
+      .content, .custom-site-footer {
         margin-left: 0 !important;
-        padding: 10px;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
       }
-      .logout_btn {
-        margin-right: 10px;
-        font-size: 13px;
-        padding: 3px 8px;
-      }
-      label #sidebar_btn {
-        left: 180px !important;
+      .left_area h3 {
+        font-size: 16px;
       }
     }
   </style>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
-
-
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
 <body>
 
   <input type="checkbox" id="check">
+  
   <!--header area start-->
   <header>
-    <label for="check">
-      <i class="fas fa-bars" id="sidebar_btn"></i>
-    </label>
-    <div class="left_area">
-      <h3>Online Exam</h3>
+    <div style="display: flex; align-items: center;">
+      <label for="check">
+        <i class="fas fa-bars" id="sidebar_btn"></i>
+      </label>
+      <div class="left_area">
+        <h3>Online <span>Exam System</span></h3>
+      </div>
     </div>
     <div class="right_area">
-      <a href="/logout" class="logout_btn" style="border-radius:0px;">Logout</a>
+      <a href="/logout" class="logout_btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
   </header>
   <!--header area end-->
+
   <!--sidebar start-->
   <div class="sidebar">
     <center>
-
       {% if request.user.student.profile_pic %}
-        <img src="/static/{{ request.user.student.profile_pic }}" class="profile_image" alt="">
+        <img src="/static/{{ request.user.student.profile_pic }}" class="profile_image" alt="Student Profile">
       {% else %}
-        <img src="{% static "image/ali_icon.jpg" %}" class="profile_image" alt="">
+        <img src="{% static "image/ali_icon.jpg" %}" class="profile_image" alt="Student Profile">
       {% endif %}
-      <h4>{{request.user.first_name}}</h4>
-      <h6 style="color: rgb(255, 255, 255);">( Student )</h6>
-
+      <h4>{{ request.user.first_name }}</h4>
+      {% if request.user.student %}
+        <span class="student-id-badge"><i class="fas fa-id-card"></i> {{ request.user.student.student_id }}</span>
+      {% endif %}
     </center>
 
     <a href="/student/student-dashboard"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
@@ -225,19 +243,16 @@
   </div>
   <!--sidebar end-->
 
+  <div class="main-body-container">
+    <!--content start-->
+    <div class="content">
+      {% block content %}
+      {% endblock content %}
+    </div>
+    <!--content end-->
 
-  <!--content start-->
-  <div class="content">
-    <br><br><br><br><br>
-    {% block content %}
-
-    {% endblock content %}
-
-
-    <br><br><br>
     {% include "exam/footer.html" %}
   </div>
-  <!--content end-->
-</body>
 
+</body>
 </html>
