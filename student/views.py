@@ -43,57 +43,82 @@ from django.utils import timezone
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_dashboard_view(request):
+    from exam.models import Enrollment, Result
+    student = models.Student.objects.get(user_id=request.user.id)
+    active_enrollments = Enrollment.objects.filter(student=student, status='active').count()
+    pending_enrollments = Enrollment.objects.filter(student=student, status='pending').count()
+    total_exams_taken = Result.objects.filter(student=student, is_practice=False).count()
+    
     dict={
-    'total_course':QMODEL.Course.objects.all().count(),
-    'total_question':QMODEL.Question.objects.all().count(),
+        'total_course': QMODEL.Course.objects.filter(is_active=True).count(),
+        'total_question': QMODEL.Question.objects.all().count(),
+        'active_enrollments': active_enrollments,
+        'pending_enrollments': pending_enrollments,
+        'total_exams_taken': total_exams_taken,
     }
     return render(request,'student/student_dashboard.html',context=dict)
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def student_exam_view(request):
-    courses = QMODEL.Course.objects.all()
+    from exam.models import Enrollment
+    student = models.Student.objects.get(user_id=request.user.id)
+    
+    # Only show courses the student is enrolled in (active enrollment)
+    active_enrollments = Enrollment.objects.filter(
+        student=student, status='active'
+    ).select_related('course')
+    
+    enrolled_courses = [e.course for e in active_enrollments]
     now = timezone.now()
     
     live_course_list = []
     past_course_list = []
     
-    for c in courses:
+    for c in enrolled_courses:
         if c.start_time and c.end_time:
             if now <= c.end_time:
                 status = 'LIVE'
                 if now < c.start_time:
                     status = 'SCHEDULED'
-                live_course_list.append({
-                    'course': c,
-                    'status': status
-                })
+                live_course_list.append({'course': c, 'status': status})
             else:
-                past_course_list.append({
-                    'course': c,
-                    'status': 'PRACTICE'
-                })
+                past_course_list.append({'course': c, 'status': 'PRACTICE'})
         else:
-            past_course_list.append({
-                'course': c,
-                'status': 'PRACTICE'
-            })
+            past_course_list.append({'course': c, 'status': 'PRACTICE'})
         
     return render(request, 'student/student_exam.html', {
         'live_course_list': live_course_list,
         'past_course_list': past_course_list,
-        'now': now
+        'now': now,
+        'has_enrollments': len(enrolled_courses) > 0,
     })
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
-def take_exam_view(request,pk):
-    course=QMODEL.Course.objects.get(id=pk)
-    total_questions=QMODEL.Question.objects.all().filter(course=course).count()
-    questions=QMODEL.Question.objects.all().filter(course=course)
-    total_marks=0
+def take_exam_view(request, pk):
+    from exam.models import Enrollment
+    course = QMODEL.Course.objects.get(id=pk)
+    student = models.Student.objects.get(user_id=request.user.id)
+    
+    # Enrollment guard: redirect to enroll page if not enrolled
+    if not course.is_free:
+        try:
+            enrollment = Enrollment.objects.get(student=student, course=course)
+            if not enrollment.is_valid():
+                from django.contrib import messages as django_messages
+                django_messages.warning(request, f'You need an active enrollment to access "{course.course_name}". Please enroll first.')
+                return redirect('enroll-course', pk=pk)
+        except Enrollment.DoesNotExist:
+            from django.contrib import messages as django_messages
+            django_messages.warning(request, f'Please enroll in "{course.course_name}" to take this exam.')
+            return redirect('enroll-course', pk=pk)
+    
+    total_questions = QMODEL.Question.objects.all().filter(course=course).count()
+    questions = QMODEL.Question.objects.all().filter(course=course)
+    total_marks = 0
     for q in questions:
-        total_marks=total_marks + q.marks
+        total_marks = total_marks + q.marks
 
     now = timezone.now()
     is_live = False
@@ -101,10 +126,10 @@ def take_exam_view(request,pk):
         if course.start_time <= now <= course.end_time:
             is_live = True
     
-    return render(request,'student/take_exam.html',{
-        'course':course,
-        'total_questions':total_questions,
-        'total_marks':total_marks,
+    return render(request, 'student/take_exam.html', {
+        'course': course,
+        'total_questions': total_questions,
+        'total_marks': total_marks,
         'is_live': is_live
     })
 

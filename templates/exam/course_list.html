@@ -1,0 +1,180 @@
+{% extends 'student/studentbase.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  .course-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+  .course-thumbnail {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+  }
+  .course-thumbnail-placeholder {
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    font-size: 48px;
+  }
+  .badge-free { background: #10b981; color: #fff; }
+  .badge-paid { background: #f59e0b; color: #fff; }
+  .badge-enrolled { background: #38bdf8; color: #0f172a; font-weight: 700; }
+  .category-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid #38bdf8;
+    color: #38bdf8;
+    background: transparent;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .category-pill:hover, .category-pill.active {
+    background: #38bdf8;
+    color: #0f172a;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+  .price-tag {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+</style>
+
+<div class="mb-4">
+  <h2 class="page-title"><i class="fas fa-graduation-cap text-info me-2"></i>Available Courses</h2>
+  <p class="text-muted">Enroll in a course to access its exams</p>
+</div>
+
+<!-- Category Filter -->
+{% if categories %}
+<div class="mb-4 d-flex flex-wrap gap-2">
+  <a href="/courses" class="category-pill {% if not selected_category %}active{% endif %}">All</a>
+  {% for cat in categories %}
+    <a href="/courses?category={{ cat.slug }}" class="category-pill {% if selected_category == cat.slug %}active{% endif %}">
+      <i class="{{ cat.icon }}"></i> {{ cat.name }}
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Messages -->
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<!-- Course Grid -->
+{% if courses %}
+<div class="row g-4">
+  {% for course in courses %}
+  <div class="col-sm-6 col-lg-4 col-xl-3">
+    <div class="course-card h-100 d-flex flex-column">
+      <!-- Thumbnail -->
+      {% if course.thumbnail %}
+        <img src="{{ course.thumbnail.url }}" alt="{{ course.course_name }}" class="course-thumbnail">
+      {% else %}
+        <div class="course-thumbnail-placeholder">
+          <i class="{{ course.category.icon|default:'fas fa-book-open' }}"></i>
+        </div>
+      {% endif %}
+
+      <div class="p-3 d-flex flex-column flex-grow-1">
+        <!-- Category & Status badges -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          {% if course.category %}
+            <span class="badge bg-secondary">{{ course.category.name }}</span>
+          {% else %}
+            <span></span>
+          {% endif %}
+          {% if course.id in enrolled_course_ids %}
+            <span class="badge badge-enrolled"><i class="fas fa-check-circle me-1"></i>Enrolled</span>
+          {% elif course.is_free %}
+            <span class="badge badge-free">FREE</span>
+          {% else %}
+            <span class="badge badge-paid">৳{{ course.price }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Title -->
+        <h6 class="fw-700 mb-1" style="font-size:15px; color:#1e293b; font-weight:700;">{{ course.course_name }}</h6>
+
+        <!-- Teacher -->
+        {% if course.teacher %}
+          <small class="text-muted mb-2"><i class="fas fa-chalkboard-teacher me-1"></i>{{ course.teacher.get_name }}</small>
+        {% endif %}
+
+        <!-- Description -->
+        {% if course.description %}
+          <p class="text-muted small mb-2" style="line-height:1.4;">{{ course.description|truncatechars:80 }}</p>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="d-flex gap-3 mb-3 text-muted small">
+          <span><i class="fas fa-layer-group me-1"></i>{{ course.subjects.count }} subjects</span>
+          <span><i class="fas fa-question me-1"></i>{{ course.question_number }} Qs</span>
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-auto">
+          {% if course.id in enrolled_course_ids %}
+            <a href="/student/student-exam" class="btn btn-info btn-sm w-100 fw-bold">
+              <i class="fas fa-play-circle me-1"></i>Go to Exams
+            </a>
+          {% else %}
+            <div class="d-flex justify-content-between align-items-center">
+              {% if not course.is_free %}
+                <span class="price-tag">৳{{ course.price }}</span>
+              {% else %}
+                <span class="text-success fw-bold"><i class="fas fa-infinity me-1"></i>Free</span>
+              {% endif %}
+              <a href="/courses/{{ course.slug }}" class="btn btn-outline-info btn-sm fw-bold">
+                View Details
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+  <h5 class="text-muted">No courses available yet</h5>
+  <p class="text-muted">Check back soon!</p>
+</div>
+{% endif %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock content %}

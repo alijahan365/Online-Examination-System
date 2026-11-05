@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: oes-lms
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn onlinexam.wsgi:application --bind 0.0.0.0:$PORT --workers 2"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: onlinexam.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: oes-lms.onrender.com
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: oes-db
+          property: connectionString
+      - key: USE_CLOUDINARY
+        value: "false"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://oes-lms.onrender.com"
+
+databases:
+  - name: oes-db
+    plan: free
+    region: singapore

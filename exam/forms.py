@@ -29,12 +29,35 @@ class TeacherSalaryForm(forms.Form):
 class CourseForm(forms.ModelForm):
     class Meta:
         model = models.Course
-        fields = ['course_name', 'question_number', 'total_marks', 'start_time', 'end_time', 'result_publish_time']
+        fields = [
+            'course_name', 'question_number', 'total_marks',
+            'start_time', 'end_time', 'result_publish_time',
+            # New LMS fields
+            'category', 'teacher', 'description', 'thumbnail',
+            'price', 'is_free', 'is_active',
+        ]
         widgets = {
             'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'result_publish_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
+
+
+class SubjectForm(forms.ModelForm):
+    class Meta:
+        model = models.Subject
+        fields = ['course', 'title', 'description', 'order', 'is_active']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+        }
+
+
+class EnrollmentAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.Enrollment
+        fields = ['student', 'course', 'status', 'expires_at']
 
 class QuestionForm(forms.ModelForm):
     courseID = forms.ModelChoiceField(queryset=models.Course.objects.all(), empty_label="Course Name", to_field_name="id")

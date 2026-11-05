@@ -117,6 +117,28 @@
       </a>
       </div>
 
+      <div class="col-md-4 col-xl-3">
+        <a href="admin-enrollments" style="text-decoration: none;color:white;">
+        <div class="card order-card" style="background:#0d9488;">
+          <div class="card-block">
+            <h6 class="m-b-20">Active Enrollments</h6>
+            <h2 class="text-right"><i class="fas fa-graduation-cap f-left"></i><span>{{total_enrollments}}</span></h2>
+          </div>
+        </div>
+      </a>
+      </div>
+
+      <div class="col-md-4 col-xl-3">
+        <a href="admin-enrollments?status=pending" style="text-decoration: none;color:white;">
+        <div class="card order-card" style="background:#d97706;">
+          <div class="card-block">
+            <h6 class="m-b-20">Pending Payments</h6>
+            <h2 class="text-right"><i class="fas fa-clock f-left"></i><span>{{pending_enrollments}}</span></h2>
+          </div>
+        </div>
+      </a>
+      </div>
+
       
     </div>
   </div>

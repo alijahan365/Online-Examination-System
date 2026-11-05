@@ -1,20 +1,23 @@
-# 🎓 Online Examination System (OES)
+# 🎓 Online Examination System (OES) & Full LMS Platform
 
 <p align="center">
+  <a href="https://oes-lms.onrender.com/">
+    <img src="https://img.shields.io/badge/Production-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=white" alt="Render Cloud" />
+  </a>
   <a href="https://alijahan.pythonanywhere.com/">
-    <img src="https://img.shields.io/badge/Live%20Demo-PythonAnywhere-brightgreen?style=for-the-badge&logo=python&logoColor=white" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/Legacy%20Demo-PythonAnywhere-brightgreen?style=for-the-badge&logo=python&logoColor=white" alt="Live Demo" />
   </a>
   <a href="https://www.python.org/">
-    <img src="https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   </a>
   <a href="https://www.djangoproject.com/">
-    <img src="https://img.shields.io/badge/Django-3.0%2B-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
+    <img src="https://img.shields.io/badge/Django-4.2%20LTS-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
   </a>
-  <a href="https://www.sqlite.org/">
-    <img src="https://img.shields.io/badge/Database-SQLite3-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <a href="https://www.postgresql.org/">
+    <img src="https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
   </a>
-  <a href="https://getbootstrap.com/">
-    <img src="https://img.shields.io/badge/Frontend-Bootstrap%204-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
+  <a href="https://cloudinary.com/">
+    <img src="https://img.shields.io/badge/Media-Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" alt="Cloudinary" />
   </a>
 </p>
 
@@ -22,27 +25,43 @@
 
 ## 📌 Table of Contents
 1. [Project Overview](#-project-overview)
-2. [Live Application Access](#-live-application-access)
-3. [System Analysis & Design (SAD) Diagrams](#-system-analysis--design-sad-diagrams)
-   - [1. System Architecture (3-Tier)](#1-system-architecture-3-tier)
-   - [2. Use Case Diagram](#2-use-case-diagram)
-   - [3. Entity-Relationship Diagram (ERD)](#3-entity-relationship-diagram-erd)
-4. [Key Features](#-key-features)
-   - [Student Module](#student-module)
-   - [Teacher Module](#teacher-module)
-   - [Admin Module](#admin-module)
-5. [Local Development Setup (VS Code)](#-local-development-setup-vs-code)
-6. [Deployment Guide (PythonAnywhere)](#-deployment-guide-pythonanywhere)
-7. [Database Structure](#-database-structure)
-8. [Author & License](#-author--license)
+2. [LMS Architecture & Features](#-lms-architecture--features)
+3. [Live Application Access](#-live-application-access)
+4. [System Analysis & Design (SAD) Diagrams](#-system-analysis--design-sad-diagrams)
+5. [Key Features](#-key-features)
+6. [Local Development Setup (VS Code)](#-local-development-setup-vs-code)
+7. [Deploying to Render (Free Cloud Hosting)](#-deploying-to-render-free-cloud-hosting)
+8. [Database Structure](#-database-structure)
+9. [Author & License](#-author--license)
 
 ---
 
 ## 📖 Project Overview
 
-The **Online Examination System (OES)** is a web-based portal developed using **Python** and **Django** as a term project for the **System Analysis and Design (SAD)** course at **Daffodil International University**. 
+The **Online Examination System (OES)** is a complete, enterprise-grade **Learning Management System (LMS)** developed using **Python & Django 4.2**. Originally initiated as a term project for the **System Analysis and Design (SAD)** course at **Daffodil International University**, it has been upgraded to a realistic production LMS featuring:
+- **Course & Subject Hierarchy**: Courses contain chapters/subjects with structured exam modules.
+- **Student Enrollment & Payments**: Support for course purchase, bKash/Nagad/Rocket/Card payments, and admin verification.
+- **Strict Exam Access Guard**: Only actively enrolled students can access specific exams.
+- **AI Anti-Cheating Proctoring**: Live face tracking, camera snapshots, tab-switching detection, and violation review logs.
+- **Cloud-Ready Architecture**: Deployed with Gunicorn, WhiteNoise, PostgreSQL, and Cloudinary media storage on Render.
 
-The system digitizes and automates the traditional examination process by offering role-based portals for Students, Teachers, and Administrators. It allows instructors to manage MCQ question banks and enables students to take exams online with automated score calculation.
+---
+
+## 🚀 Deploying to Render (Free Cloud Hosting)
+
+1. **Connect Repo**: In Render dashboard, select **New Web Service** and select this GitHub repository.
+2. **Build & Start Commands**:
+   - **Build Command**: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+   - **Start Command**: `gunicorn onlinexam.wsgi:application --bind 0.0.0.0:$PORT`
+3. **Environment Variables**:
+   - `SECRET_KEY`: (auto-generate or set a secure random string)
+   - `DATABASE_URL`: (PostgreSQL internal URL from Render PostgreSQL service)
+   - `ALLOWED_HOSTS`: `your-app-name.onrender.com`
+   - `DEBUG`: `False`
+   - `USE_CLOUDINARY`: `True` (with your Cloudinary credentials)
+   - `CSRF_TRUSTED_ORIGINS`: `https://your-app-name.onrender.com`
+
+Detailed instructions are also in [Deployment_Guide.md](./Deployment_Guide.md).
 
 ---
 
