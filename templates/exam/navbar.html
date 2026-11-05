@@ -5,65 +5,126 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <style type="text/css">
-    html, body {
-      height: 100%;
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      font-family: 'Poppins', sans-serif;
-      background-color: #f4f6f9;
+      padding-top: 72px;
+      background-color: #f8fafc;
     }
-    .bs-example {
-      margin: 0px;
+    .custom-navbar {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 0;
+      transition: all 0.3s ease;
     }
-    .bg-dark {
-      background-color: #1e293b !important;
-    }
-    .navbar-brand {
+    .navbar-brand-title {
+      font-weight: 800;
       font-size: 20px;
-      font-family: sans-serif;
-    }
-    .public-page-wrapper {
-      flex: 1 0 auto;
-      padding-top: 65px;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      text-decoration: none;
       display: flex;
-      flex-direction: column;
-      width: 100%;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon-box {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+    }
+    .nav-link-custom {
+      color: #cbd5e1 !important;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 8px 14px !important;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .nav-link-custom:hover {
+      color: #38bdf8 !important;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .btn-nav-primary {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white !important;
+      font-weight: 700;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-nav-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #075985);
+      transform: translateY(-1px);
     }
   </style>
 </head>
 
 <body>
-  <div class="bs-example">
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top" style="background-color: #1e293b; box-shadow: 0 2px 10px rgba(0,0,0,0.15);">
-      <a style="color: #ffffff; text-decoration: none; font-weight: bold;" href="/">
-        <font face="verdana" size="5">Online Examination</font>
-      </a>  
-      <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top custom-navbar">
+    <div class="container">
+      <a class="navbar-brand-title" href="/">
+        <div class="brand-icon-box">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <span>OES <span style="color:#38bdf8; font-weight:700;">LMS</span></span>
+      </a>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-        <div class="navbar-nav"></div>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+          <li class="nav-item">
+            <a class="nav-link-custom" href="/"><i class="fas fa-home me-1"></i> Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-custom" href="/courses"><i class="fas fa-book-open me-1"></i> Courses</a>
+          </li>
 
-        <div class="navbar-nav" style="font-weight: 600;">
-          <a style="padding-left: 20px;" href="/" class="nav-item nav-link"><i class="fas fa-home"></i> Home</a>
-          <a href="/teacher/teacherclick" class="nav-item nav-link"><i class="fas fa-chalkboard-teacher"></i> Teacher</a>
-          <a href="/student/studentclick" class="nav-item nav-link"><i class="fas fa-user-graduate"></i> Student</a>
-          <a href="/adminclick" class="nav-item nav-link"><i class="fas fa-user-shield"></i> Admin</a>
-          <a href="/contactus" class="nav-item nav-link"><i class="fas fa-envelope"></i> Contact</a>
-        </div>
+          <!-- Portals Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link-custom dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="fas fa-th-large me-1"></i> Portals
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; margin-top: 10px;">
+              <li><a class="dropdown-item py-2 fw-semibold" href="/student/studentclick"><i class="fas fa-user-graduate text-primary me-2"></i> Student Portal</a></li>
+              <li><a class="dropdown-item py-2 fw-semibold" href="/teacher/teacherclick"><i class="fas fa-chalkboard-teacher text-success me-2"></i> Teacher Portal</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item py-2 fw-semibold" href="/adminclick"><i class="fas fa-shield-alt text-danger me-2"></i> Admin Portal</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link-custom" href="/contactus"><i class="fas fa-envelope me-1"></i> Contact</a>
+          </li>
+
+          <li class="nav-item ms-lg-2">
+            <a class="btn-nav-primary" href="/student/studentlogin">
+              <i class="fas fa-sign-in-alt me-1"></i> Sign In
+            </a>
+          </li>
+        </ul>
       </div>
-    </nav>
-  </div>
+    </div>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -45,18 +45,23 @@ from django.utils import timezone
 def student_dashboard_view(request):
     from exam.models import Enrollment, Result
     student = models.Student.objects.get(user_id=request.user.id)
-    active_enrollments = Enrollment.objects.filter(student=student, status='active').count()
+    my_enrollments = Enrollment.objects.filter(student=student, status='active').select_related('course').prefetch_related('course__subjects')
+    active_enrollments = my_enrollments.count()
     pending_enrollments = Enrollment.objects.filter(student=student, status='pending').count()
     total_exams_taken = Result.objects.filter(student=student, is_practice=False).count()
+    recent_results = Result.objects.filter(student=student).order_by('-date')[:5]
     
-    dict={
+    dict = {
+        'student': student,
+        'my_enrollments': my_enrollments,
         'total_course': QMODEL.Course.objects.filter(is_active=True).count(),
         'total_question': QMODEL.Question.objects.all().count(),
         'active_enrollments': active_enrollments,
         'pending_enrollments': pending_enrollments,
         'total_exams_taken': total_exams_taken,
+        'recent_results': recent_results,
     }
-    return render(request,'student/student_dashboard.html',context=dict)
+    return render(request, 'student/student_dashboard.html', context=dict)
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)

@@ -1,39 +1,197 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en" dir="ltr">
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Examination System</title>
+  <title>OES LMS — Online Examination & Learning Management System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-    .hero-section {
-      background-image: url("{% static 'image/daffo.jpg' %}");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      min-height: calc(100vh - 120px);
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+
+    /* Hero Section */
+    .hero-wrapper {
+      background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e293b 100%);
+      color: white;
+      padding: 90px 0 100px 0;
       position: relative;
+      overflow: hidden;
+    }
+    .hero-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -150px;
+      right: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(2, 132, 199, 0) 70%);
+      border-radius: 50%;
+    }
+    .hero-wrapper::after {
+      content: "";
+      position: absolute;
+      bottom: -150px;
+      left: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0) 70%);
+      border-radius: 50%;
+    }
+    .hero-badge {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 6px 16px;
+      border-radius: 25px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-title {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: -1px;
+    }
+    @media (min-width: 992px) {
+      .hero-title { font-size: 56px; }
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      max-width: 600px;
+    }
+    .btn-hero-primary {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 30px;
+      padding: 14px 34px;
+      font-size: 16px;
+      box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+    .btn-hero-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #075985);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .btn-hero-outline {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-weight: 700;
+      border-radius: 30px;
+      padding: 13px 30px;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+    .btn-hero-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #38bdf8;
+      border-color: #38bdf8;
+    }
+
+    /* Stats Card */
+    .stat-box {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .stat-box:hover { transform: translateY(-4px); }
+    .stat-number {
+      font-size: 36px;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -1px;
+    }
+
+    /* Course Cards */
+    .course-card-custom {
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .course-card-custom:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+    .course-card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    /* Feature Cards */
+    .feature-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 30px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      height: 100%;
+      transition: all 0.2s;
+    }
+    .feature-card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-4px);
+    }
+    .feature-icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
     }
 
-    .hero-section::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(15, 23, 42, 0.7);
-      z-index: 1;
+    /* Teacher Card */
+    .faculty-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
-
-    .hero-container {
-      position: relative;
-      z-index: 2;
+    .faculty-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
       color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px auto;
+      border: 3px solid #e0f2fe;
     }
   </style>
 </head>
@@ -41,21 +199,283 @@
 <body>
   {% include "exam/navbar.html" %}
 
-  <div class="public-page-wrapper">
-    <div class="hero-section">
-      <div class="hero-container text-center px-3 py-5">
-        <h1 class="display-3 text-info" style="font-weight: 800;">Online Examination System</h1>
-        <p class="display-4 d-none d-sm-block text-light" style="font-size: 28px;">Attend your examinations online with AI Anti-Cheating Proctoring</p>
-        <p class="lead text-light mb-4">Sign Up now to start your first online examination</p>
+  <!-- ============================================== -->
+  <!-- HERO SECTION -->
+  <!-- ============================================== -->
+  <section class="hero-wrapper">
+    <div class="container position-relative" style="z-index: 2;">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+          <div class="hero-badge mb-3">
+            <i class="fas fa-brain text-warning"></i> AI-Proctored Examination Platform
+          </div>
+          <h1 class="hero-title mb-3">
+            Master CSE Subjects & Attend <span style="color: #38bdf8;">Verified Online Exams</span>
+          </h1>
+          <p class="hero-subtitle mb-4">
+            A comprehensive, industry-grade LMS featuring modular curriculum (Courses &rarr; Subjects &rarr; Exams), automated instant payment verification via bKash & Visa, and real-time proctored examinations.
+          </p>
 
-        <a href="/student/studentsignup" class="btn btn-lg btn-info px-4 py-3" style="border-radius: 30px; font-weight: bold;">
-          <i class="fa fa-graduation-cap" aria-hidden="true"></i> Sign Up as Student
+          <div class="d-flex flex-wrap gap-3 mb-4">
+            <a href="/courses" class="btn-hero-primary">
+              <i class="fas fa-search me-2"></i> Browse All Courses
+            </a>
+            <a href="/student/studentsignup" class="btn-hero-outline">
+              <i class="fas fa-user-plus me-2"></i> Register as Student
+            </a>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="d-flex flex-wrap gap-4 pt-3 border-top border-secondary small text-white-50">
+            <span><i class="fas fa-check-circle text-success me-1"></i> Instant Gateway Activation</span>
+            <span><i class="fas fa-check-circle text-success me-1"></i> Automated Scorecard</span>
+            <span><i class="fas fa-check-circle text-success me-1"></i> DIU CSE Standard</span>
+          </div>
+        </div>
+
+        <div class="col-lg-5 text-center">
+          <!-- Interactive Preview Card -->
+          <div class="p-4 rounded-4 shadow-lg text-start" style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.15);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge bg-danger"><i class="fas fa-dot-circle me-1"></i> Live Exam Active</span>
+              <span class="badge bg-light text-dark"><i class="fas fa-video me-1 text-success"></i> Webcam AI Monitoring</span>
+            </div>
+            <h5 class="fw-bold text-white mb-2">CSE-101: Data Structures Midterm</h5>
+            <div class="d-flex justify-content-between text-muted small mb-3">
+              <span>Time Left: <strong class="text-warning">28:45</strong></span>
+              <span>Questions: <strong class="text-white">10 / 10</strong></span>
+            </div>
+            <div class="progress mb-3" style="height: 6px;">
+              <div class="progress-bar bg-info" style="width: 70%"></div>
+            </div>
+            <div class="p-3 rounded-3 mb-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);">
+              <small class="text-white-50 d-block mb-1">Question 7 of 10</small>
+              <div class="text-white small fw-bold">What is the average lookup complexity of a Hash Table?</div>
+              <div class="mt-2 small text-info"><i class="fas fa-check-circle me-1"></i> Answer Selected: O(1)</div>
+            </div>
+            <div class="text-center">
+              <a href="/courses" class="btn btn-sm btn-info w-100 fw-bold">Explore All Live Examinations</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- STATS COUNTER -->
+  <!-- ============================================== -->
+  <section class="py-5" style="margin-top: -40px; position: relative; z-index: 3;">
+    <div class="container">
+      <div class="row g-3">
+        <div class="col-6 col-lg-3">
+          <div class="stat-box">
+            <div class="stat-number text-primary">{{ total_students|default:"1,200" }}+</div>
+            <div class="small fw-bold text-muted text-uppercase">Enrolled Students</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-box">
+            <div class="stat-number text-success">{{ total_courses }}+</div>
+            <div class="small fw-bold text-muted text-uppercase">Specialized Courses</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-box">
+            <div class="stat-number text-warning">{{ total_exams }}+</div>
+            <div class="small fw-bold text-muted text-uppercase">MCQ Exams</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-box">
+            <div class="stat-number text-info">99.8%</div>
+            <div class="small fw-bold text-muted text-uppercase">Proctoring Accuracy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- FEATURED COURSES SECTION -->
+  <!-- ============================================== -->
+  <section class="py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+        <div>
+          <span class="badge bg-primary px-3 py-2 text-uppercase mb-2">Curriculum</span>
+          <h2 class="fw-900 mb-1" style="font-weight: 800; color: #0f172a;">Featured Computer Science Courses</h2>
+          <p class="text-muted mb-0">Enroll in top-tier courses, access dedicated subjects, and sit for online exams.</p>
+        </div>
+        <a href="/courses" class="btn btn-outline-primary fw-bold px-4 rounded-pill">
+          View All Courses <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+
+      <div class="row g-4">
+        {% for course in featured_courses %}
+        <div class="col-md-6 col-lg-4">
+          <div class="course-card-custom">
+            <!-- Header Thumbnail Placeholder -->
+            <div class="p-4" style="background: linear-gradient(135deg, #0f172a, #1e3a5f); color: white;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge bg-secondary">{{ course.category.name|default:"CSE" }}</span>
+                {% if course.is_free %}
+                  <span class="badge bg-success fs-6">FREE</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark fs-6 fw-bold">৳{{ course.price }}</span>
+                {% endif %}
+              </div>
+              <h5 class="fw-bold text-white mb-0" style="min-height: 50px;">{{ course.course_name }}</h5>
+            </div>
+
+            <div class="course-card-body">
+              {% if course.teacher %}
+                <small class="text-muted mb-2">
+                  <i class="fas fa-chalkboard-teacher text-info me-1"></i> Coordinator: <strong>{{ course.teacher.get_name }}</strong>
+                </small>
+              {% endif %}
+
+              <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.5;">
+                {{ course.description|truncatechars:90 }}
+              </p>
+
+              <!-- Metrics -->
+              <div class="d-flex justify-content-between py-2 border-top border-bottom mb-3 text-muted small">
+                <span><i class="fas fa-layer-group text-primary me-1"></i> {{ course.subjects.count }} Subjects</span>
+                <span><i class="fas fa-file-alt text-warning me-1"></i> {{ course.question_number }} Questions</span>
+                <span><i class="fas fa-infinity text-success me-1"></i> Lifetime</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <div>
+                  {% if course.is_free %}
+                    <span class="text-success fw-bold">Free Access</span>
+                  {% else %}
+                    <span class="fs-5 fw-bold text-dark">৳{{ course.price }}</span>
+                  {% endif %}
+                </div>
+                <a href="/courses/{{ course.slug }}" class="btn btn-info btn-sm fw-bold px-3">
+                  View Syllabus &rarr;
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- CORE FEATURES HIGHLIGHT -->
+  <!-- ============================================== -->
+  <section class="py-5" style="background: #f1f5f9;">
+    <div class="container">
+      <div class="text-center max-w-700 mx-auto mb-5">
+        <span class="badge bg-info text-dark px-3 py-2 text-uppercase mb-2">Technology</span>
+        <h2 class="fw-800" style="font-weight: 800; color: #0f172a;">Why OES is Built for Industry Excellence</h2>
+        <p class="text-muted">A modern solution addressing all examination integrity and digital learning requirements.</p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Feature 1 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon-box bg-primary text-white">
+              <i class="fas fa-video"></i>
+            </div>
+            <h5 class="fw-bold mb-2">AI Anti-Cheating</h5>
+            <p class="text-muted small mb-0">Live webcam face tracking, automatic snapshots, and tab-switch logging to prevent unfair exam practices.</p>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon-box bg-success text-white">
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Instant Auto Payment</h5>
+            <p class="text-muted small mb-0">Seamless automated gateway with bKash, Rocket, and Islami Bank Visa cards. Instant course unlock and tax invoice.</p>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon-box bg-warning text-dark">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Live Leaderboard</h5>
+            <p class="text-muted small mb-0">Real-time ranked scoring. Students immediately view explanations and compare percentiles with peers.</p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon-box bg-danger text-white">
+              <i class="fas fa-sitemap"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Modular Hierarchy</h5>
+            <p class="text-muted small mb-0">Courses house dedicated subjects, each taught by specialized teachers with independent exam assessments.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- FACULTY SECTION -->
+  <!-- ============================================== -->
+  <section class="py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <span class="badge bg-success px-3 py-2 text-uppercase mb-2">Instructors</span>
+        <h2 class="fw-800" style="font-weight: 800; color: #0f172a;">Learn from Qualified Computer Scientists</h2>
+        <p class="text-muted">Courses designed and monitored by university instructors and software engineers.</p>
+      </div>
+
+      <div class="row g-4 justify-content-center">
+        {% for instructor in instructors %}
+        <div class="col-sm-6 col-lg-3">
+          <div class="faculty-card">
+            <div class="faculty-avatar">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <h6 class="fw-bold mb-1">{{ instructor.get_name }}</h6>
+            <small class="text-muted d-block mb-2">Department of CSE</small>
+            <span class="badge bg-light text-primary border">Verified Faculty</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================== -->
+  <!-- CALL TO ACTION BANNER -->
+  <!-- ============================================== -->
+  <section class="py-5 text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);">
+    <div class="container text-center py-4">
+      <h2 class="fw-bold mb-3">Ready to Start Your Online Examination?</h2>
+      <p class="text-white-50 mb-4 max-w-600 mx-auto">
+        Join students from across the country. Take live exams, build competitive coding strength, and receive instant verifications.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="/student/studentsignup" class="btn btn-info btn-lg fw-bold px-4 rounded-pill">
+          Create Free Student Account
+        </a>
+        <a href="/courses" class="btn btn-outline-light btn-lg fw-bold px-4 rounded-pill">
+          Browse Course Catalog
         </a>
       </div>
     </div>
-  </div>
+  </section>
 
   {% include "exam/footer.html" %}
-</body>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

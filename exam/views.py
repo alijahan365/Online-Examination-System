@@ -19,8 +19,23 @@ from exam import models as QMODEL
 
 def home_view(request):
     if request.user.is_authenticated:
-        return HttpResponseRedirect('afterlogin')  
-    return render(request,'exam/index.html')
+        return HttpResponseRedirect('afterlogin')
+    
+    courses = models.Course.objects.filter(is_active=True).select_related('category', 'teacher').prefetch_related('subjects')
+    featured_courses = courses[:6]
+    categories = models.CourseCategory.objects.all()
+    instructors = TMODEL.Teacher.objects.filter(status=True)[:4]
+    
+    context = {
+        'featured_courses': featured_courses,
+        'categories': categories,
+        'instructors': instructors,
+        'total_courses': courses.count(),
+        'total_students': SMODEL.Student.objects.count(),
+        'total_exams': models.Exam.objects.count() or models.Question.objects.count(),
+        'total_teachers': TMODEL.Teacher.objects.filter(status=True).count(),
+    }
+    return render(request, 'exam/index.html', context)
 
 
 def is_teacher(user):

@@ -72,6 +72,7 @@ urlpatterns = [
     path('courses/<slug:slug>', enrollment_views.course_detail_view, name='course-detail'),
     path('enroll/<int:pk>', enrollment_views.enroll_course_view, name='enroll-course'),
     path('my-enrollments', enrollment_views.my_enrollments_view, name='my-enrollments'),
+    path('payment-success/<int:payment_id>', enrollment_views.payment_success_view, name='payment-success'),
 ]
 
 if settings.DEBUG:

@@ -161,6 +161,10 @@ class Payment(models.Model):
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def invoice_no(self):
+        return f"INV-{self.created_at.strftime('%Y%m')}-{self.id:04d}"
+
     def __str__(self):
         return f"{self.enrollment.student} - {self.amount} BDT via {self.get_method_display()} ({self.status})"
 

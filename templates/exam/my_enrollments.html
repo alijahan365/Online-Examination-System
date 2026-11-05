@@ -107,10 +107,15 @@
 
       <!-- Action -->
       {% if enrollment.status == 'active' %}
-      <div class="mt-2">
+      <div class="mt-3 d-flex gap-2 align-items-center">
         <a href="/student/student-exam" class="btn btn-sm btn-info fw-bold">
           <i class="fas fa-play me-1"></i>Go to Exams
         </a>
+        {% if enrollment.payment %}
+        <a href="{% url 'payment-success' enrollment.payment.id %}" class="btn btn-sm btn-outline-secondary">
+          <i class="fas fa-file-invoice me-1"></i>View Invoice
+        </a>
+        {% endif %}
       </div>
       {% elif enrollment.status == 'pending' %}
       <div class="mt-2">
