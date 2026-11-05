@@ -1,52 +1,120 @@
 {% extends 'student/studentbase.html' %}
 {% block content %}
-{%load static%}
+{% load static %}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<style>
+  .marks-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 26px 30px;
+    color: #fff;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+  .course-mark-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 22px;
+    margin-bottom: 18px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  }
+  .course-mark-card:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 8px 25px rgba(56, 189, 248, 0.12);
+    transform: translateY(-2px);
+  }
+  .stat-badge {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+</style>
 
-  <style media="screen">
-    a:link {
-      text-decoration: none;
-    }
-
-    h6 {
-      text-align: center;
-    }
-
-    .row {
-      margin: 100px;
-    }
-  </style>
-</head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title">My Marks</h6>
+<div class="container-fluid px-3 my-3">
+  <!-- Header -->
+  <div class="marks-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <span class="badge bg-primary text-white mb-2">
+        <i class="fas fa-graduation-cap me-1"></i> Student Gradebook
+      </span>
+      <h2 class="fw-bold mb-1">Academic Performance & Scorecards</h2>
+      <p class="text-white-50 mb-0">Track your exam scores, attempt histories, and detailed model answer reviews.</p>
     </div>
-    <table class="table table-hover table-bordered" id="dev-table">
-      <thead>
-        <tr>
+    <div>
+      <a href="/student/leaderboard" class="btn btn-warning fw-bold">
+        <i class="fas fa-trophy me-1"></i> Global Leaderboard
+      </a>
+    </div>
+  </div>
 
-          <th>Course</th>
-          
-          <th>Action</th>
-        </tr>
-      </thead>
+  <!-- Course Marks List -->
+  <div class="row">
+    {% if courses %}
       {% for t in courses %}
-      <tr>
+      <div class="col-lg-6">
+        <div class="course-mark-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle mb-1">
+                {% if t.category %}{{ t.category.name }}{% else %}Computer Science{% endif %}
+              </span>
+              <h5 class="fw-bold text-dark mb-1">{{ t.course_name }}</h5>
+              {% if t.subject %}
+                <small class="text-muted d-block mb-2">
+                  <i class="fas fa-book-open me-1"></i>Subject: {{ t.subject.name }}
+                </small>
+              {% endif %}
+            </div>
+          </div>
 
-        <td> {{t.course_name}}</td>
-        
-        <td><a class="btn btn-success btn-sm" style="border-radius:0px;" href="{% url 'check-marks' t.id  %}"><span class="glyphicon glyphicon-eye-open"></span> View Marks</a></td>
-      </tr>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="stat-badge">
+              <i class="fas fa-tasks text-primary"></i> {{ t.question_number }} Questions
+            </span>
+            <span class="stat-badge">
+              <i class="fas fa-star text-warning"></i> {{ t.total_marks }} Total Marks
+            </span>
+            {% if t.duration_minutes %}
+              <span class="stat-badge">
+                <i class="fas fa-clock text-info"></i> {{ t.duration_minutes }} Mins
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="small text-muted">
+              <i class="fas fa-shield-alt text-success me-1"></i>Official Scorecard
+            </span>
+            <div class="d-flex gap-2">
+              <a href="{% url 'check-marks' t.id %}" class="btn btn-primary btn-sm px-3 fw-semibold">
+                <i class="fas fa-chart-line me-1"></i> View Scorecard & Answers
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
       {% endfor %}
-    </table>
+    {% else %}
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+          <i class="fas fa-folder-open fs-1 text-muted mb-3"></i>
+          <h4>No Examination Records Found</h4>
+          <p class="text-muted">You have not attempted any course examinations yet.</p>
+          <div class="mt-2">
+            <a href="/courses" class="btn btn-primary">Browse Courses & Enroll</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
   </div>
 </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

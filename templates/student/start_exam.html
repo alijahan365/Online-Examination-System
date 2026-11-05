@@ -5,10 +5,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <!-- TensorFlow.js & COCO-SSD Object Detection AI Engine -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
@@ -16,82 +15,207 @@
 
   <style>
     body {
-      background-color: #f4f6f9;
+      background-color: #f1f5f9;
+      user-select: none; /* Disable copy/paste */
+    }
+
+    /* Sticky Floating Header Bar */
+    .sticky-exam-header {
+      position: sticky;
+      top: 60px;
+      z-index: 999;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .timer-badge {
+      background: #0f172a;
+      border: 2px solid #38bdf8;
+      color: #38bdf8;
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: 800;
+      padding: 4px 16px;
+      border-radius: 10px;
+      letter-spacing: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .timer-badge.warning {
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+    .timer-badge.danger {
+      border-color: #ef4444;
+      color: #ef4444;
+      animation: pulseAlert 1s infinite;
+    }
+    @keyframes pulseAlert {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* Question Palette (Sticky Drawer) */
+    .palette-box {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 145px;
+    }
+    .q-palette-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none !important;
+    }
+    .q-palette-btn:hover {
+      border-color: #0284c7;
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+    .q-palette-btn.answered {
+      background: #10b981;
+      border-color: #059669;
+      color: white;
+    }
+    .q-palette-btn.reviewed {
+      background: #f59e0b;
+      border-color: #d97706;
+      color: white;
     }
 
     /* Floating Proctoring Video Widget */
     .proctor-widget {
       position: fixed;
-      top: 80px;
+      bottom: 25px;
       right: 25px;
-      width: 220px;
-      background: #1a202c;
-      border: 3px solid #3182ce;
-      border-radius: 12px;
-      padding: 8px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      z-index: 99999;
+      width: 200px;
+      background: #0f172a;
+      border: 3px solid #0284c7;
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      z-index: 9999;
       color: #ffffff;
       text-align: center;
     }
-
     .proctor-video {
       width: 100%;
-      height: 140px;
+      height: 125px;
       object-fit: cover;
       border-radius: 8px;
       background: #000;
     }
-
     .proctor-status {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
-      color: #48bb78;
-      margin-top: 5px;
+      color: #10b981;
+      margin-top: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 5px;
     }
-
-    @media screen and (max-width: 768px) {
-      .proctor-widget {
-        width: 130px;
-        top: 65px;
-        right: 10px;
-        padding: 4px;
-      }
-      .proctor-video {
-        height: 85px;
-      }
-      .proctor-status {
-        font-size: 9px;
-      }
-    }
-
     .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #48bb78;
+      width: 7px;
+      height: 7px;
+      background-color: #10b981;
       border-radius: 50%;
       display: inline-block;
       animation: pulse 1.5s infinite;
     }
-
     @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(72, 187, 120, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Camera Lock Overlay */
+    /* Question Cards */
+    .question-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+      border-left: 5px solid #0284c7;
+      transition: all 0.2s;
+    }
+    .question-card.flagged {
+      border-left-color: #f59e0b;
+      background: #fffdf5;
+    }
+    .question-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .option-box {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 13px 18px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .option-box:hover {
+      background: #f0f9ff;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+    .option-box.selected-option {
+      background: #e0f2fe;
+      border-color: #0284c7;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);
+    }
+    .option-box input[type="radio"] {
+      margin-right: 14px;
+      width: 18px;
+      height: 18px;
+      accent-color: #0284c7;
+      cursor: pointer;
+    }
+
+    /* Camera Lock Modal */
     #cameraLockOverlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(8px);
       z-index: 999999;
       display: flex;
       flex-direction: column;
@@ -101,126 +225,21 @@
       text-align: center;
       padding: 20px;
     }
-
-    .exam-container {
-      max-width: 850px;
-      margin: 10px auto;
-      padding: 0 15px;
-    }
-
-    .exam-header-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px 30px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-      border-top: 4px solid #3182ce;
-    }
-
-    .warning-banner {
-      background-color: #fff5f5;
-      border-left: 5px solid #e53e3e;
-      color: #c53030;
-      padding: 14px 20px;
-      border-radius: 8px;
-      margin-bottom: 25px;
-      font-size: 14px;
-      box-shadow: 0 2px 8px rgba(229,62,62,0.1);
-    }
-
-    .question-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-      border-left: 5px solid #3182ce;
-    }
-
-    .question-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: #2d3748;
-      line-height: 1.5;
-      margin-bottom: 15px;
-    }
-
-    .marks-badge {
-      background: #edf2f7;
-      color: #4a5568;
-      font-size: 13px;
-      font-weight: bold;
-      padding: 4px 12px;
-      border-radius: 20px;
-      float: right;
-    }
-
-    .option-box {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .option-box:hover {
-      background: #ebf8ff;
-      border-color: #3182ce;
-      transform: translateY(-1px);
-    }
-
-    .option-box input[type="radio"] {
-      margin-right: 12px;
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-
-    .option-text {
-      font-size: 15px;
-      color: #2d3748;
-      font-weight: 500;
-    }
-
-    .btn-submit-exam {
-      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-      color: white;
-      border: none;
-      padding: 14px 40px;
-      font-size: 18px;
-      font-weight: bold;
-      border-radius: 30px;
-      box-shadow: 0 4px 15px rgba(56,161,105,0.3);
-      display: block;
-      margin: 30px auto;
-      width: 100%;
-      max-width: 350px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-submit-exam:hover {
-      background: linear-gradient(135deg, #2f855a 0%, #22543d 100%);
-      color: white;
-      transform: translateY(-2px);
-    }
   </style>
 </head>
 
 <!-- Camera Lock Overlay -->
 <div id="cameraLockOverlay">
-  <i class="fas fa-video-slash" style="font-size: 64px; color: #f56565; margin-bottom: 20px;"></i>
-  <h2>📷 Webcam Permission Required</h2>
-  <p style="max-width: 500px; font-size: 16px; color: #cbd5e0; margin-bottom: 25px;">
-    To ensure exam integrity, AI Anti-Cheating Proctoring requires access to your camera. Please enable your camera to start the exam.
-  </p>
-  <button onclick="initCamera()" class="btn btn-primary btn-lg" style="padding: 12px 30px; border-radius: 30px; font-weight: bold;">
-    <i class="fas fa-camera"></i> Enable Camera & Start Exam
-  </button>
+  <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; max-width: 540px;">
+    <i class="fas fa-video-slash" style="font-size: 56px; color: #ef4444; margin-bottom: 20px;"></i>
+    <h3 class="fw-bold mb-2">Webcam Proctoring Required</h3>
+    <p class="text-white-50 small mb-4">
+      To maintain strict examination integrity, our AI proctoring system requires camera access to verify identity and track exam adherence.
+    </p>
+    <button onclick="initCamera()" class="btn btn-primary btn-lg fw-bold px-4 rounded-pill shadow-lg">
+      <i class="fas fa-camera me-2"></i> Grant Camera & Begin Exam
+    </button>
+  </div>
 </div>
 
 <!-- Floating Proctoring Widget -->
@@ -233,59 +252,138 @@
 
 <canvas id="snapshotCanvas" style="display: none;" width="640" height="480"></canvas>
 
-<div class="exam-container">
-  <!-- Exam Header -->
-  <div class="exam-header-card">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <h2 style="margin: 0; font-size: 22px; font-weight: 700; color: #1a202c;">📘 Course: {{ course.course_name }}</h2>
-        <small class="text-muted"><i class="fas fa-tasks"></i> Total Questions: {{ questions|length }}</small>
+<div class="container-fluid px-lg-5 my-3">
+  <!-- Sticky Top Exam Status Bar -->
+  <div class="sticky-exam-header">
+    <div>
+      <h6 class="mb-0 fw-bold text-white"><i class="fas fa-book-open text-info me-2"></i>{{ course.course_name }}</h6>
+      <small class="text-white-50">
+        Answered: <strong id="answeredCounter" class="text-info">0</strong> / {{ questions|length }} Questions
+      </small>
+    </div>
+
+    <!-- Live Countdown Timer -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="timer-badge" id="examTimerBadge">
+        <i class="fas fa-stopwatch"></i> <span id="timerDisplay">--:--</span>
       </div>
-      <span class="label label-info p-2" style="font-size: 14px;">Total Marks: {{ course.total_marks }}</span>
+      <button type="button" class="btn btn-success fw-bold px-4 rounded-pill" onclick="confirmSubmission()">
+        <i class="fas fa-paper-plane me-1"></i> Submit
+      </button>
     </div>
   </div>
 
-  <!-- Warning Banner -->
-  <div class="warning-banner">
-    <i class="fas fa-exclamation-triangle"></i> <strong>STRICT AI PROCTORING RULES:</strong> Mobile phones, books/notes, multiple persons, tab switching, or leaving window view are strictly monitored. Violations will be logged with evidence snapshots!
-  </div>
-
-  <form id="examForm" class="form" autocomplete="off" onsubmit="return saveAns()" action="/student/calculate-marks" method="POST">
-    {% csrf_token %}
-
-    {% for q in questions %}
-    <div class="question-card">
-      <span class="marks-badge">[{{ q.marks }} Marks]</span>
-      <div class="question-title">
-        <span class="text-primary">{{ forloop.counter }}.</span> {{ q.question }}
+  <div class="row g-4">
+    <!-- Left Column: Questions Form -->
+    <div class="col-lg-9">
+      <!-- Advisory Banner -->
+      <div class="alert alert-warning d-flex align-items-center p-3 mb-4 rounded-3 border-0 shadow-sm" style="background:#fffbeb; color:#92400e;">
+        <i class="fas fa-shield-alt fs-4 me-3 text-warning"></i>
+        <div class="small">
+          <strong>AI Anti-Cheating Protocol Active:</strong> Tab switching, leaving full screen, mobile device presence, or unverified persons in frame are automatically recorded as exam violations.
+        </div>
       </div>
 
-      <label class="option-box">
-        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt1" value="Option1">
-        <span class="option-text">A. {{ q.option1 }}</span>
-      </label>
+      <form id="examForm" class="form" autocomplete="off" onsubmit="return saveAns()" action="/student/calculate-marks" method="POST">
+        {% csrf_token %}
 
-      <label class="option-box">
-        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt2" value="Option2">
-        <span class="option-text">B. {{ q.option2 }}</span>
-      </label>
+        {% for q in questions %}
+        <div class="question-card" id="q_card_{{ forloop.counter }}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-primary px-3 py-2">Question {{ forloop.counter }} of {{ questions|length }}</span>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-light text-dark border">[{{ q.marks }} Marks]</span>
+              <button type="button" class="btn btn-sm btn-outline-warning" onclick="toggleReview({{ forloop.counter }})" title="Mark to review later">
+                <i class="fas fa-flag"></i> Flag
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearChoice({{ forloop.counter }})" title="Clear selected option">
+                <i class="fas fa-undo"></i> Clear
+              </button>
+            </div>
+          </div>
 
-      <label class="option-box">
-        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt3" value="Option3">
-        <span class="option-text">C. {{ q.option3 }}</span>
-      </label>
+          <div class="question-title">{{ q.question }}</div>
 
-      <label class="option-box">
-        <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt4" value="Option4">
-        <span class="option-text">D. {{ q.option4 }}</span>
-      </label>
+          <label class="option-box" onclick="onOptionSelected({{ forloop.counter }})">
+            <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt1" value="Option1">
+            <span class="fw-semibold">A. {{ q.option1 }}</span>
+          </label>
+
+          <label class="option-box" onclick="onOptionSelected({{ forloop.counter }})">
+            <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt2" value="Option2">
+            <span class="fw-semibold">B. {{ q.option2 }}</span>
+          </label>
+
+          <label class="option-box" onclick="onOptionSelected({{ forloop.counter }})">
+            <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt3" value="Option3">
+            <span class="fw-semibold">C. {{ q.option3 }}</span>
+          </label>
+
+          <label class="option-box" onclick="onOptionSelected({{ forloop.counter }})">
+            <input type="radio" name="{{ forloop.counter }}" id="q{{ forloop.counter }}_opt4" value="Option4">
+            <span class="fw-semibold">D. {{ q.option4 }}</span>
+          </label>
+        </div>
+        {% endfor %}
+
+        <div class="text-center my-4">
+          <button type="button" class="btn btn-success btn-lg fw-bold px-5 py-3 rounded-pill shadow" onclick="confirmSubmission()">
+            <i class="fas fa-check-double me-2"></i> Finalize & Submit Examination
+          </button>
+        </div>
+      </form>
     </div>
-    {% endfor %}
 
-    <button type="submit" class="btn btn-submit-exam">
-      <i class="fas fa-paper-plane"></i> Submit Answers
-    </button>  
-  </form>
+    <!-- Right Column: Question Navigator Palette -->
+    <div class="col-lg-3">
+      <div class="palette-box">
+        <h6 class="fw-bold mb-3 text-dark"><i class="fas fa-th me-2 text-primary"></i>Question Navigator</h6>
+
+        <!-- Legend -->
+        <div class="d-flex flex-wrap gap-2 mb-3 small text-muted">
+          <span class="badge bg-success">Answered</span>
+          <span class="badge bg-warning text-dark">Flagged</span>
+          <span class="badge bg-light text-dark border">Unanswered</span>
+        </div>
+
+        <!-- Palette Buttons Grid -->
+        <div class="d-flex flex-wrap gap-2" id="paletteGrid">
+          {% for q in questions %}
+            <a href="#q_card_{{ forloop.counter }}" class="q-palette-btn" id="pal_btn_{{ forloop.counter }}">
+              {{ forloop.counter }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Submission Confirmation Modal -->
+<div class="modal fade" id="submitConfirmModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius:18px;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Submit Examination?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body py-4">
+        <div class="p-3 bg-light rounded-3 mb-3 text-center">
+          <div class="fs-4 fw-bold text-primary mb-1">
+            <span id="modalAnsweredCount">0</span> / {{ questions|length }}
+          </div>
+          <small class="text-muted">Questions Answered</small>
+        </div>
+        <p class="text-muted small mb-0">
+          Once submitted, your answers will be automatically evaluated, your scorecard calculated, and ranking updated immediately.
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Resume Exam</button>
+        <button type="button" class="btn btn-success fw-bold px-4" onclick="doSubmit()">Confirm & Submit</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -294,8 +392,138 @@
   let cocoModel = null;
   let lastViolationTime = 0;
   const courseId = "{{ course.id }}";
+  const totalQuestions = {{ questions|length }};
+  const durationMinutes = {{ duration_minutes|default:20 }};
 
-  // Initialize Camera
+  // --- Real-Time Countdown Timer ---
+  let remainingSeconds = durationMinutes * 60;
+
+  function initTimer() {
+    const timerElem = document.getElementById('timerDisplay');
+    const badgeElem = document.getElementById('examTimerBadge');
+
+    const timerInterval = setInterval(() => {
+      if (isAutoSubmitting) {
+        clearInterval(timerInterval);
+        return;
+      }
+      remainingSeconds--;
+      const mins = Math.floor(remainingSeconds / 60);
+      const secs = remainingSeconds % 60;
+      timerElem.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      if (remainingSeconds <= 300 && remainingSeconds > 60) {
+        badgeElem.classList.add('warning');
+      } else if (remainingSeconds <= 60) {
+        badgeElem.classList.remove('warning');
+        badgeElem.classList.add('danger');
+      }
+
+      if (remainingSeconds <= 0) {
+        clearInterval(timerInterval);
+        timerElem.innerText = '00:00';
+        alert('⏱️ TIME HAS EXPIRED!\n\nYour exam is being automatically submitted now.');
+        doSubmit();
+      }
+    }, 1000);
+  }
+
+  // --- Question Selection & Palette Synchronization ---
+  function onOptionSelected(qIndex) {
+    // Highlight option card
+    const card = document.getElementById('q_card_' + qIndex);
+    card.querySelectorAll('.option-box').forEach(box => {
+      const radio = box.querySelector('input[type="radio"]');
+      if (radio && radio.checked) {
+        box.classList.add('selected-option');
+      } else {
+        box.classList.remove('selected-option');
+      }
+    });
+
+    // Update Palette Button to Green
+    const palBtn = document.getElementById('pal_btn_' + qIndex);
+    if (palBtn) {
+      palBtn.classList.remove('reviewed');
+      palBtn.classList.add('answered');
+    }
+    updateAnswerCounter();
+  }
+
+  function clearChoice(qIndex) {
+    const radios = document.getElementsByName(qIndex);
+    for (let r of radios) {
+      r.checked = false;
+    }
+    const card = document.getElementById('q_card_' + qIndex);
+    card.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected-option'));
+
+    const palBtn = document.getElementById('pal_btn_' + qIndex);
+    if (palBtn) {
+      palBtn.classList.remove('answered');
+    }
+    updateAnswerCounter();
+  }
+
+  function toggleReview(qIndex) {
+    const card = document.getElementById('q_card_' + qIndex);
+    const palBtn = document.getElementById('pal_btn_' + qIndex);
+    card.classList.toggle('flagged');
+    if (card.classList.contains('flagged')) {
+      palBtn.classList.add('reviewed');
+    } else {
+      palBtn.classList.remove('reviewed');
+      // check if still answered
+      const radios = document.getElementsByName(qIndex);
+      let isAnswered = false;
+      for (let r of radios) { if (r.checked) isAnswered = true; }
+      if (isAnswered) palBtn.classList.add('answered');
+    }
+  }
+
+  function updateAnswerCounter() {
+    let count = 0;
+    for (let i = 1; i <= totalQuestions; i++) {
+      const radios = document.getElementsByName(i);
+      for (let r of radios) {
+        if (r.checked) { count++; break; }
+      }
+    }
+    document.getElementById('answeredCounter').innerText = count;
+    document.getElementById('modalAnsweredCount').innerText = count;
+  }
+
+  function confirmSubmission() {
+    updateAnswerCounter();
+    const modal = new bootstrap.Modal(document.getElementById('submitConfirmModal'));
+    modal.show();
+  }
+
+  function doSubmit() {
+    isAutoSubmitting = true;
+    saveAns();
+    document.getElementById('examForm').submit();
+  }
+
+  // --- Save Answers to Cookies (Compatible with legacy engine) ---
+  function saveAns() {  
+    for (let i = 1; i <= totalQuestions; i++) {
+      const radios = document.getElementsByName(i);
+      for (let r of radios) {
+        if (r.checked) {
+          setCookie(r.name, r.value, 1);
+        }
+      }
+    }
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    document.cookie = cname + "=" + cvalue + ";expires=" + d.toUTCString() + ";path=/";
+  }
+
+  // --- Initialize Camera & AI Proctoring ---
   async function initCamera() {
     try {
       videoStream = await navigator.mediaDevices.getUserMedia({ 
@@ -307,20 +535,22 @@
       document.getElementById('cameraLockOverlay').style.display = 'none';
       document.getElementById('proctorWidget').style.display = 'block';
 
-      // Load AI Vision Object Detection Model
+      // Start timer
+      initTimer();
+
+      // Load AI Vision Model
       loadAiModel();
     } catch (err) {
-      alert('Camera access is required to take this exam. Please grant camera permission.');
+      alert('Camera access is strictly required to take this examination. Please allow camera permissions in your browser.');
       console.error('Camera Access Error:', err);
     }
   }
 
-  // Load COCO-SSD Object Detection AI Engine
   async function loadAiModel() {
     try {
       if (typeof cocoSsd !== 'undefined') {
         cocoModel = await cocoSsd.load();
-        document.getElementById('proctorStatusText').innerHTML = '<span class="pulse-dot"></span> AI Object Detection Active';
+        document.getElementById('proctorStatusText').innerHTML = '<span class="pulse-dot"></span> AI Vision Active';
         setInterval(detectCheatingObjects, 2500);
       }
     } catch (e) {
@@ -328,7 +558,6 @@
     }
   }
 
-  // Real-time AI Object / Face Detection
   async function detectCheatingObjects() {
     if (!cocoModel || isAutoSubmitting) return;
     const videoElem = document.getElementById('webcamVideo');
@@ -340,19 +569,13 @@
         let bookFound = false;
 
         predictions.forEach(pred => {
-          if (pred.class === 'person' && pred.score > 0.45) {
-            personCount++;
-          }
-          if ((pred.class === 'cell phone' || pred.class === 'phone') && pred.score > 0.35) {
-            phoneFound = true;
-          }
-          if ((pred.class === 'book' || pred.class === 'notebook') && pred.score > 0.35) {
-            bookFound = true;
-          }
+          if (pred.class === 'person' && pred.score > 0.45) { personCount++; }
+          if ((pred.class === 'cell phone' || pred.class === 'phone') && pred.score > 0.35) { phoneFound = true; }
+          if ((pred.class === 'book' || pred.class === 'notebook') && pred.score > 0.35) { bookFound = true; }
         });
 
         const now = Date.now();
-        if (now - lastViolationTime > 6000) {
+        if (now - lastViolationTime > 7000) {
           if (phoneFound) {
             lastViolationTime = now;
             logCheatingEvent('📱 Mobile Phone Detected in Camera View', false);
@@ -361,10 +584,10 @@
             logCheatingEvent('📚 Book / Notes Detected in Camera View', false);
           } else if (personCount > 1) {
             lastViolationTime = now;
-            logCheatingEvent('👥 Multiple Persons / Faces Detected (' + personCount + ' People)', false);
+            logCheatingEvent('👥 Multiple Persons Detected (' + personCount + ' People)', false);
           } else if (personCount === 0) {
             lastViolationTime = now;
-            logCheatingEvent('🚫 No Face / Person Detected in Camera Frame', false);
+            logCheatingEvent('🚫 No Face Detected in Camera Frame', false);
           }
         }
       } catch (err) {
@@ -373,12 +596,10 @@
     }
   }
 
-  // Capture Snapshot from Video
   function captureSnapshot() {
     const videoElem = document.getElementById('webcamVideo');
     const canvas = document.getElementById('snapshotCanvas');
     const context = canvas.getContext('2d');
-
     if (videoElem && videoElem.readyState === videoElem.HAVE_ENOUGH_DATA) {
       context.drawImage(videoElem, 0, 0, canvas.width, canvas.height);
       return canvas.toDataURL('image/jpeg', 0.8);
@@ -386,69 +607,43 @@
     return null;
   }
 
-  // Log Cheating Event to Backend
   function logCheatingEvent(reason, isCritical = false) {
     const imageData = captureSnapshot();
     const formData = new FormData();
     formData.append('course_id', courseId);
     formData.append('reason', reason);
-    if (imageData) {
-      formData.append('image_data', imageData);
-    }
+    if (imageData) { formData.append('image_data', imageData); }
 
     fetch('/student/log-cheating-event', {
       method: 'POST',
       body: formData,
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
+      headers: { 'X-CSRFToken': '{{ csrf_token }}' }
     }).catch(err => console.error('Log Event Error:', err));
 
     if (isCritical && !isAutoSubmitting) {
       isAutoSubmitting = true;
-      alert('⚠️ VIOLATION DETECTED: You left the exam tab/window!\n\nYour exam is being AUTO-SUBMITTED now with your current answers.');
-      saveAns();
-      document.getElementById('examForm').submit();
+      alert('⚠️ EXAM VIOLATION: You switched tabs or minimized the exam window!\n\nYour examination is being AUTO-SUBMITTED now with your saved responses.');
+      doSubmit();
     }
   }
 
-  // Detect Tab Switching & Window Blur
+  // Detect Tab Switching
   document.addEventListener('visibilitychange', function () {
     if (document.hidden && !isAutoSubmitting) {
-      logCheatingEvent('⚠️ Tab Switch Detected', true);
+      logCheatingEvent('⚠️ Tab Switch Violation Detected', true);
     }
   });
 
   window.addEventListener('blur', function () {
     if (!isAutoSubmitting) {
-      logCheatingEvent('⚠️ Window Blur / Focus Lost', true);
+      logCheatingEvent('⚠️ Window Focus Lost Violation', true);
     }
   });
 
-  // Save Answers to Cookies
-  function saveAns() {  
-    var ele = document.getElementsByTagName('input'); 
-    for(i = 0; i < ele.length; i++) { 
-      if(ele[i].type === "radio") { 
-        if(ele[i].checked){        
-          setCookie(ele[i].name, ele[i].value, 3);
-        }
-      } 
-    } 
-  }
-
-  function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-  }
-
-  // Auto-prompt camera on load
+  // Prompt camera on start
   window.onload = function() {
     initCamera();
   };
 </script>
 
-<br><br><br><br><br><br>
 {% endblock content %}

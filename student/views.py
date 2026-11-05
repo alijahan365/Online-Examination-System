@@ -140,17 +140,24 @@ def take_exam_view(request, pk):
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
-def start_exam_view(request,pk):
-    course=QMODEL.Course.objects.get(id=pk)
+def start_exam_view(request, pk):
+    course = QMODEL.Course.objects.get(id=pk)
     now = timezone.now()
     if course.start_time and now < course.start_time:
         return redirect('student-exam')
 
-    questions=QMODEL.Question.objects.all().filter(course=course)
-    if request.method=='POST':
-        pass
-    response= render(request,'student/start_exam.html',{'course':course,'questions':questions})
-    response.set_cookie('course_id',course.id)
+    questions = QMODEL.Question.objects.all().filter(course=course)
+    
+    # Calculate realistic duration: 2 minutes per question or minimum 15 mins
+    duration_minutes = max(15, len(questions) * 2)
+
+    response = render(request, 'student/start_exam.html', {
+        'course': course,
+        'questions': questions,
+        'duration_minutes': duration_minutes,
+        'total_questions': len(questions),
+    })
+    response.set_cookie('course_id', course.id)
     return response
 
 

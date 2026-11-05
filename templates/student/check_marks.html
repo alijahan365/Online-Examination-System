@@ -2,80 +2,294 @@
 {% block content %}
 {% load static %}
 
-<head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<style>
+  .scorecard-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 30px;
+    color: #fff;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  .score-badge-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+  }
+  .metric-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    height: 100%;
+  }
+  .question-review-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    transition: all 0.2s;
+  }
+  .question-review-card:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.1);
+  }
+  .review-option {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .review-option.correct-option {
+    background: #ecfdf5;
+    border-color: #10b981;
+    color: #065f46;
+    font-weight: 600;
+  }
+  .explanation-box {
+    background: #f0fdf4;
+    border-left: 4px solid #10b981;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    color: #064e3b;
+  }
 
-  <style media="screen">
-    .explanation-box {
-      background-color: #eef9f6;
-      border-left: 4px solid #10b981;
-      padding: 10px 15px;
-      margin-top: 8px;
-      border-radius: 4px;
-      color: #064e3b;
+  @media print {
+    header, .sidebar, .custom-site-footer, .no-print {
+      display: none !important;
     }
-  </style>
-</head>
-<br><br>
-<div class="container">
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <h6 class="panel-title" style="text-align: center;">Examination Score & Review: {{ course.course_name }}</h6>
+    .content {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .scorecard-header {
+      background: #1e293b !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+    }
+  }
+</style>
+
+<div class="container-fluid px-3 my-3">
+  <!-- Top Action Breadcrumb -->
+  <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+    <a href="/student/student-exam" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-arrow-left me-1"></i> Back to Exam Portal
+    </a>
+    <div class="d-flex gap-2">
+      <button onclick="window.print()" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-print me-1"></i> Print / Download Scorecard
+      </button>
+      <a href="{% url 'take-exam' course.id %}" class="btn btn-success btn-sm">
+        <i class="fas fa-redo me-1"></i> Retake Practice Exam
+      </a>
     </div>
+  </div>
 
-    {% if not results_published %}
-      <div class="alert alert-warning text-center my-4" style="margin: 20px;">
-        <h4>🔒 Results Pending Publication</h4>
-        <p class="mb-0">Official results and detailed answer explanations for <strong>{{ course.course_name }}</strong> are scheduled to be published on <strong>{{ course.result_publish_time|date:"d M Y, h:i A" }}</strong>.</p>
-      </div>
-    {% else %}
-      <table class="table table-hover table-bordered" id="dev-table">
-        <thead>
-          <tr>
-            <th>Course</th>
-            <th>Your Score</th>
-            <th>Attempt</th>
-            <th>Exam Date</th>
-          </tr>
-        </thead>
-        {% for t in results %}
-        <tr>
-          <td><strong>{{ t.exam.course_name }}</strong></td>
-          <td><span class="label label-success" style="font-size: 14px;">{{ t.marks }} / {{ total_marks }}</span></td>
-          <td>Attempt {{ forloop.counter }}</td>
-          <td>{{ t.date|date:"d M Y, h:i A" }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+  <!-- Scorecard Hero -->
+  <div class="scorecard-header">
+    <div class="row align-items-center">
+      <div class="col-md-8 mb-3 mb-md-0">
+        <span class="badge bg-info text-dark mb-2">
+          <i class="fas fa-check-circle me-1"></i> Verified Official Result
+        </span>
+        <h2 class="fw-bold mb-1">{{ course.course_name }}</h2>
+        <p class="text-white-50 mb-3">
+          {% if course.subject %}
+            <i class="fas fa-layer-group me-1"></i>Subject: {{ course.subject.name }} &bull; 
+          {% endif %}
+          <i class="fas fa-user-graduate me-1"></i>Student: {{ request.user.first_name }} {{ request.user.last_name }} 
+          {% if request.user.student %}({{ request.user.student.student_id }}){% endif %}
+        </p>
 
-      <!-- Question & Answer Review with Explanations -->
-      <div style="margin-top: 30px;">
-        <h3 class="text-primary">📝 Question & Answer Explanations</h3>
-        <hr>
-        {% for q in questions %}
-          <div class="well">
-            <h4><strong>Q{{ forloop.counter }}: {{ q.question }}</strong> <span class="label label-info pull-right">[{{ q.marks }} Marks]</span></h4>
-            <ul class="list-group">
-              <li class="list-group-item {% if q.answer == 'Option1' %}list-group-item-success{% endif %}">A. {{ q.option1 }} {% if q.answer == 'Option1' %}<strong>(Correct Answer)</strong>{% endif %}</li>
-              <li class="list-group-item {% if q.answer == 'Option2' %}list-group-item-success{% endif %}">B. {{ q.option2 }} {% if q.answer == 'Option2' %}<strong>(Correct Answer)</strong>{% endif %}</li>
-              <li class="list-group-item {% if q.answer == 'Option3' %}list-group-item-success{% endif %}">C. {{ q.option3 }} {% if q.answer == 'Option3' %}<strong>(Correct Answer)</strong>{% endif %}</li>
-              <li class="list-group-item {% if q.answer == 'Option4' %}list-group-item-success{% endif %}">D. {{ q.option4 }} {% if q.answer == 'Option4' %}<strong>(Correct Answer)</strong>{% endif %}</li>
-            </ul>
-
-            {% if q.explanation %}
-              <div class="explanation-box">
-                <strong>💡 Explanation / Reason:</strong>
-                <p class="mb-0" style="white-space: pre-line; margin-top: 5px;">{{ q.explanation }}</p>
-              </div>
-            {% endif %}
+        <div class="d-flex flex-wrap gap-3">
+          <div>
+            <small class="text-white-50 d-block">Total Questions</small>
+            <span class="fw-bold fs-5">{{ questions|length }} Items</span>
           </div>
-        {% endfor %}
+          <div class="vr bg-secondary"></div>
+          <div>
+            <small class="text-white-50 d-block">Total Exam Marks</small>
+            <span class="fw-bold fs-5">{{ total_marks }} Marks</span>
+          </div>
+          <div class="vr bg-secondary"></div>
+          <div>
+            <small class="text-white-50 d-block">Published Time</small>
+            <span class="fw-bold fs-5">{{ now|date:"d M Y, h:i A" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 text-center">
+        {% if results %}
+          {% with latest_result=results|last %}
+            <div class="d-inline-flex flex-column align-items-center">
+              <div class="score-badge-circle mb-2">
+                <span class="fs-1 fw-bold lh-1">{{ latest_result.marks }}</span>
+                <span class="small opacity-75">/ {{ total_marks }}</span>
+              </div>
+              <div>
+                <span class="badge bg-success px-3 py-1 fs-6">
+                  <i class="fas fa-award me-1"></i>Attempt Completed
+                </span>
+              </div>
+            </div>
+          {% endwith %}
+        {% else %}
+          <div class="badge bg-secondary p-3 fs-6">No Exam Attempt Recorded Yet</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if not results_published %}
+    <div class="alert alert-warning text-center p-4 rounded-4 shadow-sm">
+      <i class="fas fa-lock fs-1 text-warning mb-3 d-block"></i>
+      <h4 class="fw-bold">🔒 Examination Results Under Review</h4>
+      <p class="mb-0 text-muted">
+        Official scorecard rankings and detailed question explanations for <strong>{{ course.course_name }}</strong> 
+        will be released on <strong>{{ course.result_publish_time|date:"d M Y, h:i A" }}</strong>.
+      </p>
+    </div>
+  {% else %}
+
+    <!-- Attempts History Table -->
+    {% if results %}
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 border-0">
+          <h5 class="fw-bold mb-0 text-dark">
+            <i class="fas fa-history text-primary me-2"></i>Attempt History & Marks Breakdown
+          </h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">Attempt #</th>
+                <th>Score Secured</th>
+                <th>Performance</th>
+                <th>Submission Timestamp</th>
+                <th class="pe-4 text-end">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in results %}
+              <tr>
+                <td class="ps-4 fw-bold">Attempt {{ forloop.counter }}</td>
+                <td>
+                  <span class="badge bg-primary fs-6 px-3 py-1">
+                    {{ t.marks }} / {{ total_marks }}
+                  </span>
+                </td>
+                <td>
+                  <span class="text-success fw-semibold">
+                    <i class="fas fa-check-circle me-1"></i>Completed
+                  </span>
+                </td>
+                <td class="text-muted">{{ t.date|date:"d M Y, h:i A" }}</td>
+                <td class="pe-4 text-end">
+                  <span class="badge bg-success-subtle text-success border border-success-subtle">Recorded</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     {% endif %}
-  </div>
+
+    <!-- Detailed Question & Answer Explanations -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <h4 class="fw-bold mb-1">
+            <i class="fas fa-graduation-cap text-success me-2"></i>Question-by-Question Solution & Explanations
+          </h4>
+          <p class="text-muted small mb-0">Review verified model solutions with in-depth academic explanations for every question.</p>
+        </div>
+        <span class="badge bg-light text-dark border px-3 py-2">
+          {{ questions|length }} Questions Total
+        </span>
+      </div>
+
+      {% for q in questions %}
+        <div class="question-review-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-dark rounded-pill px-3 py-2">Q{{ forloop.counter }}</span>
+              <h5 class="fw-bold mb-0 text-dark">{{ q.question }}</h5>
+            </div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1">
+              {{ q.marks }} Marks
+            </span>
+          </div>
+
+          <div class="row g-2 mb-2">
+            <div class="col-md-6">
+              <div class="review-option {% if q.answer == 'Option1' %}correct-option{% endif %}">
+                <span><strong>A.</strong> {{ q.option1 }}</span>
+                {% if q.answer == 'Option1' %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Correct Answer</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="review-option {% if q.answer == 'Option2' %}correct-option{% endif %}">
+                <span><strong>B.</strong> {{ q.option2 }}</span>
+                {% if q.answer == 'Option2' %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Correct Answer</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="review-option {% if q.answer == 'Option3' %}correct-option{% endif %}">
+                <span><strong>C.</strong> {{ q.option3 }}</span>
+                {% if q.answer == 'Option3' %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Correct Answer</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="review-option {% if q.answer == 'Option4' %}correct-option{% endif %}">
+                <span><strong>D.</strong> {{ q.option4 }}</span>
+                {% if q.answer == 'Option4' %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Correct Answer</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          {% if q.explanation %}
+            <div class="explanation-box">
+              <div class="d-flex align-items-center gap-2 fw-bold text-success mb-1">
+                <i class="fas fa-lightbulb"></i> Academic Explanation & Key Concepts:
+              </div>
+              <div style="white-space: pre-line; line-height: 1.6; font-size: 14px;">
+                {{ q.explanation }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+  {% endif %}
 </div>
 
-<br><br><br><br><br><br>
 {% endblock content %}

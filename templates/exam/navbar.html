@@ -115,11 +115,32 @@
             <a class="nav-link-custom" href="/contactus"><i class="fas fa-envelope me-1"></i> Contact</a>
           </li>
 
-          <li class="nav-item ms-lg-2">
-            <a class="btn-nav-primary" href="/student/studentlogin">
-              <i class="fas fa-sign-in-alt me-1"></i> Sign In
-            </a>
-          </li>
+          {% if request.user.is_authenticated %}
+            <li class="nav-item ms-lg-2 dropdown">
+              <a class="btn-nav-primary dropdown-toggle d-inline-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle"></i> {{ request.user.first_name|default:request.user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; margin-top: 10px;">
+                {% if request.user.student %}
+                  <li><a class="dropdown-item py-2 fw-semibold" href="/student/student-dashboard"><i class="fas fa-tachometer-alt text-primary me-2"></i> Dashboard</a></li>
+                  <li><a class="dropdown-item py-2 fw-semibold" href="/my-enrollments"><i class="fas fa-bookmark text-success me-2"></i> My Enrollments</a></li>
+                  <li><a class="dropdown-item py-2 fw-semibold" href="/student/student-exam"><i class="fas fa-book text-info me-2"></i> My Exams</a></li>
+                {% elif request.user.teacher %}
+                  <li><a class="dropdown-item py-2 fw-semibold" href="/teacher/teacher-dashboard"><i class="fas fa-tachometer-alt text-primary me-2"></i> Dashboard</a></li>
+                {% else %}
+                  <li><a class="dropdown-item py-2 fw-semibold" href="/admin-dashboard"><i class="fas fa-tachometer-alt text-danger me-2"></i> Admin Panel</a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2 fw-semibold text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item ms-lg-2">
+              <a class="btn-nav-primary" href="/student/studentlogin">
+                <i class="fas fa-sign-in-alt me-1"></i> Sign In
+              </a>
+            </li>
+          {% endif %}
         </ul>
       </div>
     </div>

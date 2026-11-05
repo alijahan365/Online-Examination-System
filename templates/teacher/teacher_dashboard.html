@@ -1,114 +1,176 @@
 {% extends 'teacher/teacherbase.html' %}
-{% load widget_tweaks %}
 {% block content %}
+{% load static %}
 
+<style>
+  .dashboard-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 26px 30px;
+    color: #fff;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  }
+  .kpi-card {
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  }
+  .kpi-blue { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+  .kpi-purple { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+  .kpi-emerald { background: linear-gradient(135deg, #059669, #10b981); }
+  .kpi-amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <style type="text/css">
-      a:link {
-        text-decoration: none;
-      }
-  
-      .order-card {
-        color: rgb(255, 255, 255);
-      }
-  
-      .bg-c-blue {
-        background: #04868f;
-      }
-  
-      .bg-c-green {
-        background:#4C51BF;
-      }
-  
-      .bg-c-yellow {
-        background: #F56565;
-      }
-  
-      .bg-c-gtx {
-        background:#57717d;
-      }
-  
-  
-      .card {
-        
-        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        margin-bottom: 30px;
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
-      }
-  
-      .card .card-block {
-        padding: 25px;
-      }
-  
-      .order-card i {
-        font-size: 26px;
-      }
-  
-      .f-left {
-        float: left;
-      }
-  
-      .f-right {
-        float: right;
-      }
-      header {
-      left: 0px;
-      right: 0px;
-    }
-    </style>
-  </head>
-<br><br>
+  .kpi-icon-bg {
+    position: absolute;
+    right: 15px;
+    bottom: 10px;
+    font-size: 70px;
+    opacity: 0.15;
+  }
+  .quick-action-btn {
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .quick-action-btn:hover {
+    border-color: #38bdf8;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(56, 189, 248, 0.1);
+  }
+  .action-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+</style>
 
-  <div class="container">
-    <div class="row">
-      
-        <div class="col-md-4 col-xl-4">
-            <div class="card bg-c-gtx order-card">
-              <div class="card-block">
-                <h6 class="m-b-20">Registered Students </h6>
-                <h2 class="text-right"><i class="fas fa-user-graduate f-left"></i><span>{{total_student}}</span></h2>
-                
-              </div>
-            </div>
-          </div>
-  
-      <div class="col-md-4 col-xl-4">
-        <div class="card bg-c-yellow order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Total Courses</h6>
-           <h2 class="text-right"><i class="fas fa-book f-left"></i><span>{{total_course}}</span></h2>
-            
-          </div>
-        </div>
+<div class="container-fluid px-3 my-3">
+  <!-- Hero Banner -->
+  <div class="dashboard-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <span class="badge bg-primary text-white mb-2">
+        <i class="fas fa-chalkboard-teacher me-1"></i> Instructor Control Center
+      </span>
+      <h2 class="fw-bold mb-1">Welcome back, {{ request.user.first_name }}!</h2>
+      <p class="text-white-50 mb-0">Manage your course syllabus, create MCQ examinations, and address student academic questions.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/teacher/teacher-add-exam" class="btn btn-primary fw-bold shadow-sm">
+        <i class="fas fa-plus-circle me-1"></i> Create Exam Paper
+      </a>
+      <a href="/teacher/teacher-add-question" class="btn btn-outline-light">
+        <i class="fas fa-plus me-1"></i> Add Question
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon-bg"><i class="fas fa-user-graduate"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold letter-spacing-1">Registered Students</div>
+        <h2 class="fw-bold display-5 mb-0">{{ total_student }}</h2>
+        <small class="text-white-50">Active on platform</small>
       </div>
-  
-      <div class="col-md-4 col-xl-4">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Total Questions</h6>
-            <h2 class="text-right"><i class="fas fa-question-circle f-left"></i><span>{{total_question}}</span></h2>
-            
-          </div>
-        </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon-bg"><i class="fas fa-book-open"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold letter-spacing-1">Course Exams</div>
+        <h2 class="fw-bold display-5 mb-0">{{ total_course }}</h2>
+        <small class="text-white-50">Published curricula</small>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="kpi-card kpi-emerald">
+        <div class="kpi-icon-bg"><i class="fas fa-question-circle"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold letter-spacing-1">Question Bank</div>
+        <h2 class="fw-bold display-5 mb-0">{{ total_question }}</h2>
+        <small class="text-white-50">MCQ items with solutions</small>
       </div>
     </div>
   </div>
 
+  <!-- Quick Action Hub -->
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="fas fa-bolt text-warning me-2"></i>Instructor Actions & Management Hub
+  </h5>
 
-<br><br><br><br><br><br><br><br><br><br>
+  <div class="row g-3 mb-5">
+    <div class="col-md-6 col-lg-3">
+      <a href="/teacher/teacher-exam" class="quick-action-btn">
+        <div class="action-icon-circle bg-primary-subtle text-primary">
+          <i class="fas fa-book"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Manage Exams</strong>
+          <small class="text-muted">View & configure course papers</small>
+        </div>
+      </a>
+    </div>
 
-<script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <div class="col-md-6 col-lg-3">
+      <a href="/teacher/teacher-question" class="quick-action-btn">
+        <div class="action-icon-circle bg-info-subtle text-info">
+          <i class="fas fa-list-check"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Manage Questions</strong>
+          <small class="text-muted">Edit options, marks & solutions</small>
+        </div>
+      </a>
+    </div>
 
+    <div class="col-md-6 col-lg-3">
+      <a href="/teacher/teacher-proctoring-logs" class="quick-action-btn">
+        <div class="action-icon-circle bg-danger-subtle text-danger">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Proctoring Logs</strong>
+          <small class="text-muted">AI anti-cheat incident reports</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <a href="/teacher/student-doubts" class="quick-action-btn">
+        <div class="action-icon-circle bg-success-subtle text-success">
+          <i class="fas fa-comments"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Student Doubts</strong>
+          <small class="text-muted">Answer student queries</small>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}

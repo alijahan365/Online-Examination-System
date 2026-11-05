@@ -1,152 +1,233 @@
 {% extends 'exam/adminbase.html' %}
-{% load widget_tweaks %}
 {% block content %}
+{% load static %}
 
+<style>
+  .admin-dashboard-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 28px 32px;
+    color: #fff;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  }
+  .admin-kpi-card {
+    border-radius: 16px;
+    padding: 22px 24px;
+    color: #fff;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    text-decoration: none !important;
+    display: block;
+  }
+  .admin-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    color: #fff;
+  }
+  .kpi-blue { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+  .kpi-indigo { background: linear-gradient(135deg, #4f46e5, #818cf8); }
+  .kpi-emerald { background: linear-gradient(135deg, #059669, #10b981); }
+  .kpi-amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
+  .kpi-teal { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+  .kpi-rose { background: linear-gradient(135deg, #e11d48, #fb7185); }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-    <style type="text/css">
-      a:link {
-        text-decoration: none;
-      }
-  
-      .order-card {
-        color: rgb(255, 255, 255);
-      }
-  
-      .bg-c-blue {
-        background: #04868f;
-      }
-  
-      .bg-c-green {
-        background:#4C51BF;
-      }
-  
-      .bg-c-yellow {
-        background: #F56565;
-      }
-  
-      .bg-c-pink {
-        background:#3186ca;
-      }
-  
-  
-      .card {
-        
-        -webkit-box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        box-shadow: 0 1px 2.94px 0.06px rgba(4, 26, 55, 0.16);
-        margin-bottom: 30px;
-        -webkit-transition: all 0.3s ease-in-out;
-        transition: all 0.3s ease-in-out;
-      }
-  
-      .card .card-block {
-        padding: 25px;
-      }
-  
-      .order-card i {
-        font-size: 26px;
-      }
-  
-      .f-left {
-        float: left;
-      }
-  
-      .f-right {
-        float: right;
-      }
-      header {
-      left: 0px;
-      right: 0px;
-    }
-    </style>
-  </head>
-<br><br>
+  .admin-kpi-icon {
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    font-size: 64px;
+    opacity: 0.18;
+  }
+  .quick-ctrl-btn {
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    height: 100%;
+  }
+  .quick-ctrl-btn:hover {
+    border-color: #38bdf8;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(56, 189, 248, 0.1);
+  }
+  .ctrl-icon-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+</style>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-view-student" style="text-decoration: none;color:white;">
-        <div class="card bg-c-pink order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Registered Students </h6>
-            <h2 class="text-right"><i class="fas fa-user-graduate f-left"></i><span>{{total_student}}</span></h2>
-          </div>
-        </div>
+<div class="container-fluid px-3 my-3">
+  <!-- Top Banner -->
+  <div class="admin-dashboard-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <span class="badge bg-danger text-white mb-2">
+        <i class="fas fa-user-shield me-1"></i> Root Administration
+      </span>
+      <h2 class="fw-bold mb-1">System Command Center</h2>
+      <p class="text-white-50 mb-0">Monitor total users, curricula, live exam papers, payments, and proctoring logs.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/admin-enrollments" class="btn btn-warning fw-bold text-dark shadow-sm">
+        <i class="fas fa-credit-card me-1"></i> View Course Enrollments & PGW
       </a>
-      </div>
-      
-  
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-view-teacher" style="text-decoration: none;color:white;">
-        <div class="card bg-c-green order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Total Teachers </h6>
-            <h2 class="text-right"><i class="fas fa-chalkboard-teacher f-left"></i><span>{{total_teacher}}</span></h2>
-          </div>
-        </div>
+      <a href="/admin-course" class="btn btn-outline-light">
+        <i class="fas fa-book me-1"></i> Manage Courses
       </a>
-      </div>
-  
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-view-course" style="text-decoration: none;color:white;">
-        <div class="card bg-c-blue order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Total Courses</h6>
-           <h2 class="text-right"><i class="fas fa-book f-left"></i><span>{{total_course}}</span></h2> 
-          </div>
-        </div>
-      </a>
-      </div>
-  
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-view-question" style="text-decoration: none;color:white;">
-        <div class="card bg-c-yellow order-card">
-          <div class="card-block">
-            <h6 class="m-b-20">Available Questions</h6>
-            <h2 class="text-right"><i class="fas fa-question-circle f-left"></i><span>{{total_question}}</span></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-enrollments" style="text-decoration: none;color:white;">
-        <div class="card order-card" style="background:#0d9488;">
-          <div class="card-block">
-            <h6 class="m-b-20">Active Enrollments</h6>
-            <h2 class="text-right"><i class="fas fa-graduation-cap f-left"></i><span>{{total_enrollments}}</span></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-
-      <div class="col-md-4 col-xl-3">
-        <a href="admin-enrollments?status=pending" style="text-decoration: none;color:white;">
-        <div class="card order-card" style="background:#d97706;">
-          <div class="card-block">
-            <h6 class="m-b-20">Pending Payments</h6>
-            <h2 class="text-right"><i class="fas fa-clock f-left"></i><span>{{pending_enrollments}}</span></h2>
-          </div>
-        </div>
-      </a>
-      </div>
-
-      
     </div>
   </div>
 
+  <!-- Metric KPI Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-view-student" class="admin-kpi-card kpi-blue">
+        <div class="admin-kpi-icon"><i class="fas fa-user-graduate"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Registered Students</div>
+        <h2 class="fw-bold display-6 mb-0">{{ total_student }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>View all student accounts</small>
+      </a>
+    </div>
 
-<br><br><br><br><br><br><br><br><br><br>
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-view-teacher" class="admin-kpi-card kpi-indigo">
+        <div class="admin-kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Verified Instructors</div>
+        <h2 class="fw-bold display-6 mb-0">{{ total_teacher }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>View faculty members</small>
+      </a>
+    </div>
 
-<script src="http://netdna.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-view-course" class="admin-kpi-card kpi-emerald">
+        <div class="admin-kpi-icon"><i class="fas fa-book-open"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Active Courses</div>
+        <h2 class="fw-bold display-6 mb-0">{{ total_course }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>Manage curriculum list</small>
+      </a>
+    </div>
 
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-view-question" class="admin-kpi-card kpi-amber">
+        <div class="admin-kpi-icon"><i class="fas fa-question-circle"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Total Questions</div>
+        <h2 class="fw-bold display-6 mb-0">{{ total_question }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>Inspect MCQ repository</small>
+      </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-enrollments" class="admin-kpi-card kpi-teal">
+        <div class="admin-kpi-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Active Enrollments</div>
+        <h2 class="fw-bold display-6 mb-0">{{ total_enrollments }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>Paid & unlocked students</small>
+      </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-4">
+      <a href="/admin-enrollments?status=pending" class="admin-kpi-card kpi-rose">
+        <div class="admin-kpi-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="small text-white-50 text-uppercase fw-bold">Pending Invoices</div>
+        <h2 class="fw-bold display-6 mb-0">{{ pending_enrollments }}</h2>
+        <small class="text-white-50"><i class="fas fa-arrow-right me-1"></i>Needs verification</small>
+      </a>
+    </div>
+  </div>
+
+  <!-- Administrative Quick Operations -->
+  <h5 class="fw-bold text-dark mb-3">
+    <i class="fas fa-sliders-h text-primary me-2"></i>Administration Modules & Portals
+  </h5>
+
+  <div class="row g-3 mb-5">
+    <div class="col-md-6 col-lg-4">
+      <a href="/admin-enrollments" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-success-subtle text-success">
+          <i class="fas fa-money-check-alt"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Course Enrollments & PGW</strong>
+          <small class="text-muted">bKash, Rocket & IBBL Card audit trail</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <a href="/admin-proctoring-logs" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-danger-subtle text-danger">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">AI Proctoring Incident Logs</strong>
+          <small class="text-muted">Camera & window defocus alerts</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <a href="/student/leaderboard" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-warning-subtle text-warning">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Global Leaderboard</strong>
+          <small class="text-muted">Official ranked exam standings</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <a href="/admin-teacher" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-primary-subtle text-primary">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Instructor Management</strong>
+          <small class="text-muted">Approval, salary & assignments</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <a href="/admin-student" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-info-subtle text-info">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Student Registry</strong>
+          <small class="text-muted">Student profiles & marks records</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <a href="/admin-contact-messages" class="quick-ctrl-btn">
+        <div class="ctrl-icon-circle bg-secondary-subtle text-secondary">
+          <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <div>
+          <strong class="text-dark d-block">Contact Helpdesk</strong>
+          <small class="text-muted">Inbound student & user inquiries</small>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
