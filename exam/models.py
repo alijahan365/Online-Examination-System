@@ -32,7 +32,7 @@ class Course(models.Model):
     result_publish_time = models.DateTimeField(null=True, blank=True)
 
     # --- New LMS fields ---
-    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    slug = models.SlugField(max_length=220, unique=True, blank=True, null=True)
     category = models.ForeignKey(CourseCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='courses')
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='courses')
     description = models.TextField(blank=True)
@@ -40,8 +40,8 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
     is_free = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -64,16 +64,46 @@ class Course(models.Model):
 class Subject(models.Model):
     """Chapter/Module under a Course"""
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='subjects')
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='subjects')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.course.course_name} → {self.title}"
+        teacher_name = f" ({self.teacher.get_name})" if self.teacher else ""
+        return f"{self.course.course_name} → {self.title}{teacher_name}"
 
     class Meta:
         ordering = ['order']
+
+
+class Exam(models.Model):
+    """Specific Exam under a Subject"""
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    question_number = models.PositiveIntegerField(default=10)
+    total_marks = models.PositiveIntegerField(default=50)
+    pass_marks = models.PositiveIntegerField(default=20)
+    duration_minutes = models.PositiveIntegerField(default=30)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    result_publish_time = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.subject and not self.course:
+            self.course = self.subject.course
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.subject.title} → {self.name}"
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class Enrollment(models.Model):
@@ -106,35 +136,39 @@ class Enrollment(models.Model):
 
 class Payment(models.Model):
     METHOD_CHOICES = [
-        ('bkash', 'bKash'),
+        ('bkash', 'bKash (01784299242)'),
+        ('rocket', 'Rocket (01626796685)'),
         ('nagad', 'Nagad'),
-        ('rocket', 'Rocket'),
-        ('card', 'Card/Online'),
-        ('free', 'Free'),
-        ('manual', 'Manual/Admin'),
+        ('card', 'Islami Bank Visa Debit Card'),
+        ('free', 'Free Course'),
+        ('manual', 'Manual/Admin Approval'),
     ]
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
+        ('pending', 'Pending Review'),
+        ('completed', 'Completed / Verified'),
         ('failed', 'Failed'),
         ('refunded', 'Refunded'),
     ]
     enrollment = models.OneToOneField(Enrollment, on_delete=models.CASCADE, related_name='payment')
     amount = models.DecimalField(max_digits=8, decimal_places=2)
-    method = models.CharField(max_length=20, choices=METHOD_CHOICES, default='manual')
+    method = models.CharField(max_length=30, choices=METHOD_CHOICES, default='bkash')
     transaction_id = models.CharField(max_length=100, blank=True)
+    sender_number = models.CharField(max_length=50, blank=True, default='')
+    card_last4 = models.CharField(max_length=10, blank=True, default='')
+    bank_name = models.CharField(max_length=100, blank=True, default='Islami Bank Bangladesh Limited')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     paid_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.enrollment.student} - {self.amount} BDT ({self.status})"
+        return f"{self.enrollment.student} - {self.amount} BDT via {self.get_method_display()} ({self.status})"
 
 
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='questions')
     subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
+    exam_paper = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
     marks = models.PositiveIntegerField(default=1)
     question = models.CharField(max_length=600)
     option1 = models.CharField(max_length=200)

@@ -19,9 +19,16 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'course', 'order', 'is_active']
-    list_filter = ['course', 'is_active']
+    list_display = ['title', 'course', 'teacher', 'order', 'is_active']
+    list_filter = ['course', 'teacher', 'is_active']
     list_editable = ['order', 'is_active']
+
+
+@admin.register(models.Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ['name', 'subject', 'course', 'question_number', 'total_marks', 'duration_minutes', 'is_active']
+    list_filter = ['course', 'subject', 'is_active']
+    search_fields = ['name', 'subject__title', 'course__course_name']
 
 
 @admin.register(models.Enrollment)

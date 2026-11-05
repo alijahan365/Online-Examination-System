@@ -15,34 +15,59 @@
   }
   .subject-card {
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .subject-header {
     padding: 16px 20px;
-    margin-bottom: 10px;
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .exam-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
-    gap: 14px;
-    background: #fff;
-    transition: box-shadow 0.2s;
+    justify-content: space-between;
+    transition: background 0.2s;
   }
-  .subject-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-  .subject-icon {
-    width: 42px; height: 42px;
+  .exam-item:last-child {
+    border-bottom: none;
+  }
+  .exam-item:hover {
+    background: #f8fafc;
+  }
+  .exam-icon {
+    width: 36px;
+    height: 36px;
     background: #e0f2fe;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: #0284c7; font-size: 18px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0284c7;
+    font-size: 16px;
     flex-shrink: 0;
   }
   .enroll-box {
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     padding: 28px;
     position: sticky;
     top: 80px;
+    border: 1px solid #e2e8f0;
   }
   .price-display {
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 900;
     color: #0f172a;
   }
@@ -62,7 +87,7 @@
 </a>
 
 <div class="row g-4">
-  <!-- Left: Course Info -->
+  <!-- Left: Course Info, Subjects & Exams -->
   <div class="col-lg-8">
     <div class="detail-header">
       {% if course.category %}
@@ -70,42 +95,84 @@
       {% endif %}
       <h2 class="fw-800 mb-2" style="font-weight:800;">{{ course.course_name }}</h2>
       {% if course.description %}
-        <p class="mb-3 opacity-75">{{ course.description }}</p>
+        <p class="mb-3 text-white-50">{{ course.description }}</p>
       {% endif %}
-      <div class="d-flex flex-wrap gap-3">
+      <div class="d-flex flex-wrap gap-3 small">
         {% if course.teacher %}
-          <span><i class="fas fa-chalkboard-teacher me-1"></i>{{ course.teacher.get_name }}</span>
+          <span><i class="fas fa-chalkboard-teacher me-1 text-info"></i>Coordinator: {{ course.teacher.get_name }}</span>
         {% endif %}
-        <span><i class="fas fa-layer-group me-1"></i>{{ subjects.count }} Subjects</span>
-        <span><i class="fas fa-question-circle me-1"></i>{{ course.question_number }} Questions</span>
-        <span><i class="fas fa-star me-1 text-warning"></i>{{ course.total_marks }} Total Marks</span>
+        <span><i class="fas fa-layer-group me-1 text-info"></i>{{ subjects.count }} Subjects</span>
+        <span><i class="fas fa-file-alt me-1 text-info"></i>Structured Exam Modules</span>
       </div>
     </div>
 
-    <!-- Subjects List -->
-    <h5 class="fw-bold mb-3"><i class="fas fa-list-ul me-2 text-info"></i>Course Subjects</h5>
+    <!-- Subjects & Exams Accordion List -->
+    <h5 class="fw-bold mb-3"><i class="fas fa-book-reader me-2 text-info"></i>Subjects & Examinations</h5>
+    
     {% if subjects %}
       {% for subject in subjects %}
         <div class="subject-card">
-          <div class="subject-icon">
-            <i class="fas fa-bookmark"></i>
-          </div>
-          <div>
-            <div class="fw-600" style="font-weight:600;">{{ forloop.counter }}. {{ subject.title }}</div>
+          <!-- Subject Header -->
+          <div class="subject-header">
+            <div>
+              <span class="badge bg-primary me-2">Subject {{ forloop.counter }}</span>
+              <strong style="font-size:16px; color:#1e293b;">{{ subject.title }}</strong>
+              {% if subject.teacher %}
+                <div class="mt-1 small text-muted">
+                  <i class="fas fa-chalkboard-teacher text-info me-1"></i>Instructor: <strong>{{ subject.teacher.get_name }}</strong>
+                </div>
+              {% endif %}
+            </div>
             {% if subject.description %}
-              <small class="text-muted">{{ subject.description|truncatechars:100 }}</small>
+              <div class="small text-muted w-100 mt-1">{{ subject.description }}</div>
             {% endif %}
           </div>
-          {% if is_enrolled %}
-            <i class="fas fa-check-circle text-success ms-auto"></i>
-          {% else %}
-            <i class="fas fa-lock text-muted ms-auto"></i>
-          {% endif %}
+
+          <!-- Exams Under this Subject -->
+          <div class="subject-exams">
+            {% if subject.exams.all %}
+              {% for exam_item in subject.exams.all %}
+                <div class="exam-item">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="exam-icon">
+                      <i class="fas fa-edit"></i>
+                    </div>
+                    <div>
+                      <div class="fw-bold" style="color:#0f172a; font-size:14px;">{{ exam_item.name }}</div>
+                      <div class="small text-muted">
+                        <span><i class="fas fa-question-circle me-1"></i>{{ exam_item.question_number }} MCQs</span>
+                        <span class="mx-2">&bull;</span>
+                        <span><i class="fas fa-stopwatch me-1"></i>{{ exam_item.duration_minutes }} Mins</span>
+                        <span class="mx-2">&bull;</span>
+                        <span><i class="fas fa-award me-1"></i>{{ exam_item.total_marks }} Marks</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    {% if is_enrolled %}
+                      <a href="{% url 'take-exam' course.id %}" class="btn btn-sm btn-info fw-bold">
+                        <i class="fas fa-play me-1"></i>Take Exam
+                      </a>
+                    {% else %}
+                      <span class="badge bg-light text-muted border" title="Enroll to unlock this exam">
+                        <i class="fas fa-lock me-1"></i>Locked
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="p-3 text-muted small">
+                <i class="fas fa-info-circle me-1"></i>Exam schedule for this subject will be published soon.
+              </div>
+            {% endif %}
+          </div>
         </div>
       {% endfor %}
     {% else %}
       <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>Subjects will be added soon.
+        <i class="fas fa-info-circle me-2"></i>Curriculum details are being updated. Check back shortly.
       </div>
     {% endif %}
   </div>
@@ -117,10 +184,10 @@
         <div class="text-center mb-3">
           <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
           <h5 class="fw-bold text-success">You're Enrolled!</h5>
-          <p class="text-muted small">You have full access to this course's exams.</p>
+          <p class="text-muted small">You have lifetime access to all subjects and examination papers in this course.</p>
         </div>
         <a href="/student/student-exam" class="btn btn-info w-100 fw-bold btn-lg">
-          <i class="fas fa-play-circle me-2"></i>Go to Exams
+          <i class="fas fa-play-circle me-2"></i>Go to Exam Portal
         </a>
         <a href="/my-enrollments" class="btn btn-outline-secondary w-100 mt-2">
           <i class="fas fa-list me-2"></i>My Enrollments
@@ -128,55 +195,60 @@
       {% elif enrollment and enrollment.status == 'pending' %}
         <div class="text-center mb-3">
           <i class="fas fa-clock fa-3x text-warning mb-2"></i>
-          <h5 class="fw-bold text-warning">Payment Pending</h5>
-          <p class="text-muted small">Your payment is under review. Admin will approve shortly.</p>
+          <h5 class="fw-bold text-warning">Payment Pending Verification</h5>
+          <p class="text-muted small">Your payment request is being reviewed by the admin. Access will be unlocked shortly.</p>
         </div>
         <a href="/my-enrollments" class="btn btn-outline-secondary w-100">
-          <i class="fas fa-list me-2"></i>View My Enrollments
+          <i class="fas fa-list me-2"></i>View Payment Status
         </a>
       {% else %}
         <!-- Price -->
         <div class="text-center mb-4">
           {% if course.is_free %}
             <div class="price-display text-success">FREE</div>
-            <p class="text-muted small mt-1">No payment required</p>
+            <p class="text-muted small mt-1">Free Lifetime Enrollment</p>
           {% else %}
             <div class="price-display">৳{{ course.price }}</div>
-            <p class="text-muted small mt-1">One-time payment</p>
+            <p class="text-muted small mt-1">One-time payment for full course</p>
           {% endif %}
         </div>
 
-        <!-- Course Info -->
+        <!-- Course Summary Metrics -->
         <div class="mb-4">
           <div class="info-row">
-            <span class="text-muted"><i class="fas fa-layer-group me-2"></i>Subjects</span>
+            <span class="text-muted"><i class="fas fa-layer-group me-2"></i>Subjects Included</span>
             <span class="fw-bold">{{ subjects.count }}</span>
-          </div>
-          <div class="info-row">
-            <span class="text-muted"><i class="fas fa-question me-2"></i>Questions</span>
-            <span class="fw-bold">{{ course.question_number }}</span>
-          </div>
-          <div class="info-row">
-            <span class="text-muted"><i class="fas fa-star me-2"></i>Total Marks</span>
-            <span class="fw-bold">{{ course.total_marks }}</span>
           </div>
           <div class="info-row">
             <span class="text-muted"><i class="fas fa-infinity me-2"></i>Validity</span>
             <span class="fw-bold">Lifetime</span>
           </div>
+          <div class="info-row">
+            <span class="text-muted"><i class="fas fa-shield-alt me-2"></i>Anti-Cheating</span>
+            <span class="fw-bold text-success">AI Proctoring</span>
+          </div>
         </div>
 
-        <a href="/enroll/{{ course.id }}" class="btn btn-info w-100 fw-bold btn-lg">
+        <a href="/enroll/{{ course.id }}" class="btn btn-info w-100 fw-bold btn-lg shadow-sm">
           {% if course.is_free %}
-            <i class="fas fa-graduation-cap me-2"></i>Enroll for Free
+            <i class="fas fa-graduation-cap me-2"></i>Enroll Now — Free
           {% else %}
-            <i class="fas fa-shopping-cart me-2"></i>Enroll Now
+            <i class="fas fa-shopping-cart me-2"></i>Enroll & Pay Now
           {% endif %}
         </a>
+
+        <!-- Accepted Payment Methods Badges -->
+        <div class="text-center mt-3 pt-3 border-top">
+          <small class="text-muted d-block mb-2">Accepted Payment Methods</small>
+          <div class="d-flex justify-content-center gap-2">
+            <span class="badge bg-light text-dark border">bKash</span>
+            <span class="badge bg-light text-dark border">Rocket</span>
+            <span class="badge bg-light text-dark border">Islami Bank Visa</span>
+          </div>
+        </div>
       {% endif %}
     </div>
   </div>
 </div>
 
 {% endblock content %}
-

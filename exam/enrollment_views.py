@@ -43,7 +43,7 @@ def course_detail_view(request, slug):
     """Course detail page — shows subjects and enrollment CTA"""
     course = get_object_or_404(models.Course, slug=slug, is_active=True)
     student = SMODEL.Student.objects.get(user_id=request.user.id)
-    subjects = models.Subject.objects.filter(course=course, is_active=True)
+    subjects = models.Subject.objects.filter(course=course, is_active=True).prefetch_related('exams').select_related('teacher')
 
     enrollment = models.Enrollment.objects.filter(
         student=student, course=course
@@ -103,6 +103,17 @@ def enroll_course_view(request, pk):
             )
             method = request.POST.get('payment_method', 'bkash')
             txn_id = request.POST.get('transaction_id', '').strip()
+            sender_num = request.POST.get('sender_number', '').strip()
+            card_last4 = request.POST.get('card_last4', '').strip()
+            card_number_full = request.POST.get('card_number', '').strip().replace(' ', '')
+            if not card_last4 and len(card_number_full) >= 4:
+                card_last4 = card_number_full[-4:]
+            
+            bank_name = request.POST.get('bank_name', 'Islami Bank Bangladesh Limited').strip()
+
+            if method == 'card' and not txn_id:
+                import time
+                txn_id = f"IBBL-CARD-{int(time.time())}"
 
             payment, _ = models.Payment.objects.get_or_create(
                 enrollment=enrollment,
@@ -110,18 +121,24 @@ def enroll_course_view(request, pk):
                     'amount': course.price,
                     'method': method,
                     'transaction_id': txn_id,
+                    'sender_number': sender_num,
+                    'card_last4': card_last4,
+                    'bank_name': bank_name,
                     'status': 'pending',
                 }
             )
             if not _:
                 payment.method = method
                 payment.transaction_id = txn_id
+                payment.sender_number = sender_num
+                payment.card_last4 = card_last4
+                payment.bank_name = bank_name
                 payment.status = 'pending'
                 payment.save()
 
             django_messages.success(
                 request,
-                f'পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে। অ্যাডমিন ভেরিফাই করার পর তুমি এক্সামে প্রবেশ করতে পারবে।'
+                f'পেমেন্ট রিকোয়েস্ট সফলভাবে গ্রহণ করা হয়েছে (TrxID: {txn_id})। অ্যাডমিন ভেরিফাই করলেই এক্সামে প্রবেশ করতে পারবে।'
             )
             return redirect('my-enrollments')
 

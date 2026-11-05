@@ -101,7 +101,13 @@
         </td>
         <td>
           {% if enrollment.payment %}
-            <span class="badge bg-secondary">{{ enrollment.payment.get_method_display }}</span>
+            <span class="badge bg-secondary mb-1">{{ enrollment.payment.get_method_display }}</span>
+            {% if enrollment.payment.sender_number %}
+              <div class="small text-muted" style="font-size:11px;">From: <code>{{ enrollment.payment.sender_number }}</code></div>
+            {% endif %}
+            {% if enrollment.payment.card_last4 %}
+              <div class="small text-muted" style="font-size:11px;">Card: &bull;&bull;&bull;&bull; {{ enrollment.payment.card_last4 }}</div>
+            {% endif %}
           {% else %}—{% endif %}
         </td>
         <td>
