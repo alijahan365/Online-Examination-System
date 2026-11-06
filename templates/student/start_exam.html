@@ -509,10 +509,16 @@
   function saveAns() {  
     for (let i = 1; i <= totalQuestions; i++) {
       const radios = document.getElementsByName(i);
+      let answered = false;
       for (let r of radios) {
         if (r.checked) {
           setCookie(r.name, r.value, 1);
+          answered = true;
+          break;
         }
+      }
+      if (!answered) {
+        setCookie(i.toString(), "", -1);
       }
     }
   }

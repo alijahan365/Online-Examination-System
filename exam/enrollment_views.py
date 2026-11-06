@@ -235,3 +235,38 @@ def payment_success_view(request, payment_id):
         'subjects': subjects,
         'student': student,
     })
+
+
+def exam_routine_view(request):
+    """Live MCQ™ Exam Routine & Daily Timetable"""
+    now = timezone.now()
+    today = now.date()
+
+    # Active Live Exams (Today's live window)
+    live_exams = models.Course.objects.filter(
+        is_active=True,
+        start_time__lte=now,
+        end_time__gte=now
+    ).select_related('category', 'teacher')
+
+    # All scheduled routine courses
+    routine_courses = models.Course.objects.filter(is_active=True).order_by('routine_date', 'start_time')
+
+    # Student active enrollments if logged in
+    enrolled_ids = []
+    if request.user.is_authenticated:
+        try:
+            student = SMODEL.Student.objects.get(user_id=request.user.id)
+            enrolled_ids = list(
+                models.Enrollment.objects.filter(student=student, status='active').values_list('course_id', flat=True)
+            )
+        except SMODEL.Student.DoesNotExist:
+            pass
+
+    return render(request, 'exam/exam_routine.html', {
+        'live_exams': live_exams,
+        'routine_courses': routine_courses,
+        'enrolled_ids': enrolled_ids,
+        'now': now,
+        'today': today,
+    })

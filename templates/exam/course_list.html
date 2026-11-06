@@ -117,9 +117,14 @@
           {% if course.id in enrolled_course_ids %}
             <span class="badge badge-enrolled"><i class="fas fa-check-circle me-1"></i>Enrolled</span>
           {% elif course.is_free %}
-            <span class="badge badge-free">FREE</span>
+            <span class="badge badge-free">FREE TRIAL</span>
           {% else %}
-            <span class="badge badge-paid">৳{{ course.price }}</span>
+            <span class="badge badge-paid">
+              {% if course.original_price and course.original_price > course.price %}
+                <span class="text-decoration-line-through opacity-75 me-1" style="font-size:11px;">৳{{ course.original_price }}</span>
+              {% endif %}
+              ৳{{ course.price }}
+            </span>
           {% endif %}
         </div>
 

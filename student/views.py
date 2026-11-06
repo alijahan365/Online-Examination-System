@@ -75,12 +75,19 @@ def student_exam_view(request):
     ).select_related('course')
     
     enrolled_courses = [e.course for e in active_enrollments]
+    # Also include free courses so students can always take demo model tests
+    free_courses = list(QMODEL.Course.objects.filter(is_free=True, is_active=True))
+    all_accessible_courses = list(enrolled_courses)
+    for fc in free_courses:
+        if fc not in all_accessible_courses:
+            all_accessible_courses.append(fc)
+
     now = timezone.now()
     
     live_course_list = []
     past_course_list = []
     
-    for c in enrolled_courses:
+    for c in all_accessible_courses:
         if c.start_time and c.end_time:
             if now <= c.end_time:
                 status = 'LIVE'
@@ -96,7 +103,7 @@ def student_exam_view(request):
         'live_course_list': live_course_list,
         'past_course_list': past_course_list,
         'now': now,
-        'has_enrollments': len(enrolled_courses) > 0,
+        'has_enrollments': len(all_accessible_courses) > 0,
     })
 
 @login_required(login_url='studentlogin')
@@ -141,7 +148,22 @@ def take_exam_view(request, pk):
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def start_exam_view(request, pk):
+    from exam.models import Enrollment
+    from django.contrib import messages as django_messages
     course = QMODEL.Course.objects.get(id=pk)
+    student = models.Student.objects.get(user_id=request.user.id)
+
+    # Enrollment guard
+    if not course.is_free:
+        try:
+            enrollment = Enrollment.objects.get(student=student, course=course)
+            if not enrollment.is_valid():
+                django_messages.warning(request, f'You need an active enrollment to access "{course.course_name}". Please enroll first.')
+                return redirect('enroll-course', pk=pk)
+        except Enrollment.DoesNotExist:
+            django_messages.warning(request, f'Please enroll in "{course.course_name}" to access this examination.')
+            return redirect('enroll-course', pk=pk)
+
     now = timezone.now()
     if course.start_time and now < course.start_time:
         return redirect('student-exam')
@@ -166,16 +188,30 @@ def start_exam_view(request, pk):
 def calculate_marks_view(request):
     if request.COOKIES.get('course_id') is not None:
         course_id = request.COOKIES.get('course_id')
-        course=QMODEL.Course.objects.get(id=course_id)
+        course = QMODEL.Course.objects.get(id=course_id)
         
-        total_marks=0
-        questions=QMODEL.Question.objects.all().filter(course=course)
+        total_marks = 0
+        correct_count = 0
+        wrong_count = 0
+        unanswered_count = 0
+        questions = QMODEL.Question.objects.all().filter(course=course)
+        negative_rate = getattr(course, 'negative_marking', 0.25)
+        
         for i in range(len(questions)):
-            
             selected_ans = request.COOKIES.get(str(i+1))
             actual_answer = questions[i].answer
-            if selected_ans == actual_answer:
-                total_marks = total_marks + questions[i].marks
+            if not selected_ans or selected_ans in ('undefined', 'none', ''):
+                unanswered_count += 1
+            elif selected_ans == actual_answer:
+                correct_count += 1
+                total_marks += questions[i].marks
+            else:
+                wrong_count += 1
+
+        negative_deduction = round(wrong_count * negative_rate, 2)
+        net_marks = max(0.0, round(total_marks - negative_deduction, 2))
+        accuracy = round((correct_count / (correct_count + wrong_count)) * 100, 1) if (correct_count + wrong_count) > 0 else 0.0
+
         student = models.Student.objects.get(user_id=request.user.id)
         
         now = timezone.now()
@@ -185,46 +221,67 @@ def calculate_marks_view(request):
                 is_practice_attempt = False
 
         result = QMODEL.Result()
-        result.marks = total_marks
+        result.marks = int(net_marks)
+        result.net_marks = net_marks
+        result.correct_count = correct_count
+        result.wrong_count = wrong_count
+        result.unanswered_count = unanswered_count
+        result.negative_marks = negative_deduction
+        result.accuracy = accuracy
         result.exam = course
         result.student = student
         result.is_practice = is_practice_attempt
         result.save()
 
-        return HttpResponseRedirect('view-result')
+        # Immediate redirect to scorecard & solution review
+        return HttpResponseRedirect(f'/student/check-marks/{course.id}')
 
-
+    return redirect('student-exam')
 
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
 def view_result_view(request):
-    courses=QMODEL.Course.objects.all()
-    return render(request,'student/view_result.html',{'courses':courses})
+    courses = QMODEL.Course.objects.all()
+    return render(request, 'student/view_result.html', {'courses': courses})
     
 
 @login_required(login_url='studentlogin')
 @user_passes_test(is_student)
-def check_marks_view(request,pk):
-    course=QMODEL.Course.objects.get(id=pk)
+def check_marks_view(request, pk):
+    course = QMODEL.Course.objects.get(id=pk)
     student = models.Student.objects.get(user_id=request.user.id)
-    results= QMODEL.Result.objects.all().filter(exam=course).filter(student=student)    
-    questions=QMODEL.Question.objects.all().filter(course=course)
-    total_marks=0
-    for q in questions:
-        total_marks=total_marks + q.marks
+    results = QMODEL.Result.objects.all().filter(exam=course).filter(student=student).order_by('date')
+    questions = QMODEL.Question.objects.all().filter(course=course)
+    total_marks = sum(q.marks for q in questions)
+
+    # Compute Live MCQ Merit Rank
+    ranked_results = QMODEL.Result.objects.filter(exam=course).order_by('-net_marks', '-marks', 'date')
+    distinct_students = []
+    for r in ranked_results:
+        if r.student_id not in distinct_students:
+            distinct_students.append(r.student_id)
+    
+    total_participants = len(distinct_students) if distinct_students else 1
+    student_rank = (distinct_students.index(student.id) + 1) if student.id in distinct_students else 1
+
+    latest_result = results.last() if results.exists() else None
 
     now = timezone.now()
     results_published = True
-    if course.result_publish_time and now < course.result_publish_time:
-        results_published = False
+    if course.result_publish_time and now < course.result_publish_time and not (latest_result and latest_result.is_practice):
+        # Even during embargo, candidate sees their own personal scorecard
+        pass
     
-    return render(request,'student/check_marks.html',{
+    return render(request, 'student/check_marks.html', {
         'course': course,
         'results': results,
+        'latest_result': latest_result,
         'questions': questions,
         'total_marks': total_marks,
         'results_published': results_published,
+        'student_rank': student_rank,
+        'total_participants': total_participants,
         'now': now
     })
 

@@ -205,11 +205,15 @@
         <!-- Price -->
         <div class="text-center mb-4">
           {% if course.is_free %}
-            <div class="price-display text-success">FREE</div>
-            <p class="text-muted small mt-1">Free Lifetime Enrollment</p>
+            <div class="price-display text-success">FREE OPEN TRIAL</div>
+            <p class="text-muted small mt-1">ফ্রি ট্রায়াল মডেল টেস্ট &bull; আনলিমিটেড প্র্যাকটিস</p>
           {% else %}
-            <div class="price-display">৳{{ course.price }}</div>
-            <p class="text-muted small mt-1">One-time payment for full course</p>
+            {% if course.original_price and course.original_price > course.price %}
+              <div class="text-muted text-decoration-line-through fs-5">৳{{ course.original_price }}</div>
+            {% endif %}
+            <div class="price-display text-primary">৳{{ course.price }}</div>
+            <span class="badge bg-danger px-3 py-1 fw-bold mb-2">৫০% স্পেশাল ডিসকাউন্ট</span>
+            <p class="text-muted small mt-1">ওয়ান-টাইম পেমেন্ট &bull; সকল লাইভ পরীক্ষা ও সেন্ট্রাল মেধা তালিকা</p>
           {% endif %}
         </div>
 

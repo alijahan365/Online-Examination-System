@@ -68,6 +68,8 @@ urlpatterns = [
     path('admin-contact-messages', views.admin_contact_messages_view, name='admin-contact-messages'),
 
     # Student - Courses & Enrollment
+    path('routine', enrollment_views.exam_routine_view, name='exam-routine'),
+    path('exam-routine', enrollment_views.exam_routine_view, name='exam-routine-alt'),
     path('courses', enrollment_views.course_list_view, name='course-list'),
     path('courses/<slug:slug>', enrollment_views.course_detail_view, name='course-detail'),
     path('enroll/<int:pk>', enrollment_views.enroll_course_view, name='enroll-course'),
